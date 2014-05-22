@@ -29,6 +29,31 @@ bootStatResiduals <- function(dat, inds, coefind, intercept = TRUE, maxTries = 4
     return(coef(m)[coefind])
 }
 
+#' Function to calculate the coefficient(s) of the robust linear regression model
+#' from a bootstrapped sample
+#'
+#' @param dat The original data set
+#' @param inds The resampled indices
+#' @param coefind The index of the coefficient to extract
+#' @param formula the formula to fit the model
+#' @param maxTries The maximum number of tries to increase the maxit control arguments for the S estimator
+#' 
+#' @import robustbase
+bootStatCases <- function(dat, inds, coefind, formula, maxTries = 4L) {
+    suppressWarnings(m <- robustbase::lmrob(formula, data = dat[inds, ]));
+    
+    # Ensure convergence!
+    itcount <- 0L;
+    while(!m$converged && itcount < maxTries) {
+        itcount <- itcount + 1L;
+        suppressWarnings(m <- update(m, maxit.scale = m$control$maxit.scale + 200, max.it = m$control$max.it + 50))
+    }
+    if(itcount == maxTries) {
+        return(NA_real_);
+    }
+    return(coef(m)[coefind])
+}
+
 #' Function to extract the necessary data from the model and to calculate the correction
 #' factors for the fast and robust bootstrap
 #'
