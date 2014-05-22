@@ -3,18 +3,23 @@
 \alias{plot.complmrob}
 \title{Diagnostic plots for the robust regression model with compositional covariats}
 \usage{
-plot.complmrob(x, type = c("response", "model", "bootstrap"), se = TRUE,
-  conf.level = 0.95, ...)
+\method{plot}{complmrob}(x, y = NULL, type = c("response", "model"),
+  se = TRUE, conf.level = 0.95, ...)
 }
 \arguments{
 \item{x}{The complmrob object to plot}
 
-\item{type}{One of \code{response}, \code{model} or \code{bootstrap}}
+\item{y}{ignored}
 
-\item{se}{Should the confidence interval be shown in the response plot}
+\item{type}{one of \code{"response"} to plot the response or \code{"model"} to get the standard
+lmrob model diagnostic plots.}
 
-\item{conf.level}{If the confidence interval is shown in the response plot, this parameter sets
-     the level of the confidence interval}
+\item{se}{should the confidence interval be shown in the response plot}
+
+\item{conf.level}{if the confidence interval is shown in the response plot, this parameter sets
+the level of the confidence interval}
+
+\item{...}{ignored}
 }
 \description{
 Diagnostic plots for the robust regression model with compositional covariats

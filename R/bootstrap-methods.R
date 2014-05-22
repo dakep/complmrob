@@ -51,13 +51,22 @@ bootStatFastControl <- function(model) {
     
     wp2 <- robustbase::Mpsi(scaledRes, deriv = 1, cc = model$control$tuning.psi, psi = model$control$psi);
     
-    sf <- solve(crossprod(X, diag(wp2)) %*% X)
-    M <- model$scale * sf %*% crossprod(X, diag(w)) %*% X
+    sf <- crossprod(X, diag(wp2)) %*% X;
+    sfinv <- NULL;
+
+    tryCatch({
+        sfinv <- solve(sf);
+    }, error = function(e) {
+        warning("The data is (almost) singular, results will not be reliable.");
+        svddecomp <- svd(sf);
+        sfinv <<- tcrossprod(svddecomp$v %*% diag(1/svddecomp$d), svddecomp$u);
+    });
+    M <- model$scale * sfinv %*% crossprod(X, diag(w)) %*% X
     
     chideriv <- robustbase::Mchi(scaledResS, deriv = 1, cc = model$init.S$control$tuning.chi, psi = model$init.S$control$psi);
     
     a <- (chideriv %*% scaledResS)[1, 1, drop = TRUE];
-    d <- (sf %*% crossprod(X, wp2 * model$residuals)) * vfactorinv / (a);# * model$scale);
+    d <- (sfinv %*% crossprod(X, wp2 * model$residuals)) * vfactorinv / (a);# * model$scale);
     
     ret <- list(
         M = M,
