@@ -65,8 +65,8 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
         });
     }
 
-    replicatesLong <- data.frame(x = do.call(c, replicates),
-        coef = rep.int(names(replicates), sapply(replicates, length)));
+    replicatesLong <- na.omit(data.frame(x = do.call(c, replicates),
+        coef = rep.int(names(replicates), sapply(replicates, length))));
     
     ci <- confint(x, level = conf.level, type = conf.type);
     ci <- split(ci, rep.int(seq_len(nrow(ci)), ncol(ci)));

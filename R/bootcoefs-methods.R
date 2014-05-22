@@ -90,7 +90,27 @@ bootcoefs.complmrob <- function(object, R = 999, method = c("frb", "residuals", 
                 bootres[["(Intercept)"]] <- eval(bc);
             }
         } else {
-            stop("Not yet implemented");
+            bootres <- lapply(object$models, function(m, bootParams) {
+                bootParams$data <- quote(model.frame(m));
+                bootParams$formula <- quote(formula(m$terms));
+                bootParams$weights = quote(m$rweights);
+                bootParams$statistic <- quote(bootStatCases);
+                
+                bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
+                return(eval(bc));
+            }, bootParams);
+            
+            if(object$intercept == TRUE) {
+                m <- object$models[[1]];
+                bootParams$coefind <- 1;
+                bootParams$data <- quote(model.frame(m));
+                bootParams$formula <- quote(formula(m$terms));
+                bootParams$weights = quote(m$rweights);
+                bootParams$statistic <- quote(bootStatCases);
+                
+                bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
+                bootres[["(Intercept)"]] <- eval(bc);
+            }
         }
         
         if(object$intercept == TRUE) {
@@ -157,7 +177,9 @@ bootcoefs.lmrob <- function(object, R = 999, method = c("frb", "residuals", "cas
                 R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
                 intercept = (attr(object$terms, "intercept") == 1), coefind = seq_along(coef(object)));
         } else {
-            stop("Not yet implemented");
+            bootres <- boot::boot(data = model.frame(object), statistic = bootStatCases, weights = object$rweights,
+                R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
+                coefind = seq_along(coef(object)), formula = formula(object$terms));
         }
     }, error = function(e) {
         print(e);
