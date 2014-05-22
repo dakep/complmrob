@@ -6,17 +6,17 @@
 #' @param coefind The index of the coefficient to extract
 #' @param intercept If the model includes an intercept term
 #' @param maxTries The maximum number of tries to increase the maxit control arguments for the S estimator
-#' 
+#'
 #' @import robustbase
 bootStatResiduals <- function(dat, inds, coefind, intercept = TRUE, maxTries = 4L) {
     formula <- fit + resid[inds] ~ .;
-    
+
     if(intercept == FALSE) {
         formula <- fit + resid[inds] ~ . - 1;
     }
-    
+
     suppressWarnings(m <- robustbase::lmrob(formula, data = dat));
-    
+
     # Ensure convergence!
     itcount <- 0L;
     while(!m$converged && itcount < maxTries) {
@@ -37,11 +37,11 @@ bootStatResiduals <- function(dat, inds, coefind, intercept = TRUE, maxTries = 4
 #' @param coefind The index of the coefficient to extract
 #' @param formula the formula to fit the model
 #' @param maxTries The maximum number of tries to increase the maxit control arguments for the S estimator
-#' 
+#'
 #' @import robustbase
 bootStatCases <- function(dat, inds, coefind, formula, maxTries = 4L) {
     suppressWarnings(m <- robustbase::lmrob(formula, data = dat[inds, ]));
-    
+
     # Ensure convergence!
     itcount <- 0L;
     while(!m$converged && itcount < maxTries) {
@@ -66,16 +66,16 @@ bootStatFastControl <- function(model) {
     p <- attr(X, "dim")[2];
     vfactorinv <- (n - p) * model$init.S$control$bb;
 #     vfactor <- 1 / (model$init.S$control$bb * n);
-    
+
     scaledRes <- model$residuals / model$scale;
     scaledResS <- model$init.S$residuals / model$scale;
-    
+
     w <- model$rweights / model$scale;
     v <- (model$scale / vfactorinv) *
         robustbase::Mchi(scaledResS, deriv = 0, cc = model$init.S$control$tuning.chi, psi = model$init.S$control$psi);
-    
+
     wp2 <- robustbase::Mpsi(scaledRes, deriv = 1, cc = model$control$tuning.psi, psi = model$control$psi);
-    
+
     sf <- crossprod(X, diag(wp2)) %*% X;
     sfinv <- NULL;
 
@@ -87,12 +87,15 @@ bootStatFastControl <- function(model) {
         sfinv <<- tcrossprod(svddecomp$v %*% diag(1/svddecomp$d), svddecomp$u);
     });
     M <- model$scale * sfinv %*% crossprod(X, diag(w)) %*% X
-    
+
     chideriv <- robustbase::Mchi(scaledResS, deriv = 1, cc = model$init.S$control$tuning.chi, psi = model$init.S$control$psi);
-    
+
     a <- (chideriv %*% scaledResS)[1, 1, drop = TRUE];
-    d <- (sfinv %*% crossprod(X, wp2 * model$residuals)) * vfactorinv / (a);# * model$scale);
-    
+
+    # the correction vector d is not divided by the scale in the paper, but in the
+    # reference code from Matias Salibian-Barrera
+    d <- (sfinv %*% crossprod(X, wp2 * model$residuals)) * vfactorinv / (a * model$scale);
+
     ret <- list(
         M = M,
         d = d,
@@ -103,7 +106,7 @@ bootStatFastControl <- function(model) {
         residualsS = model$init.S$residuals,
         terms = terms(model)
     )
-    
+
     class(ret) <- "bootStatFastControl";
     return(ret);
 }
@@ -114,22 +117,22 @@ bootStatFastControl <- function(model) {
 #' @param inds The resampled indices
 #' @param control The control object as returned by \code{\link{bootStatFastControl}}.
 #' @param coefind The index of the coefficient to extract
-#' 
+#'
 #' @references Salibian-Barrera M., Zamar R.: Bootstrapping robust estimates of regression, 2002
 #' @import robustbase
 bootStatFast <- function(data, inds, control, coefind) {
     bsResidS <- control$residualsS[inds];
-    
+
     mf <- model.frame(control$terms, data[inds, , drop = FALSE]);
     X <- model.matrix(control$terms, mf);
     y <- model.response(mf, "numeric");
-    
+
     wts <- control$wsqrt[inds];
-    
+
     bsCoef <- .lm.fit(X * wts, y * wts)$coefficients;
     bsScale <- sum(control$v[inds]);
 
     bootCoefs <- control$coefficients + control$M %*% (bsCoef - control$coefficients) + control$d * (bsScale - control$scale);
-    
+
     return(bootCoefs[coefind])
 }
