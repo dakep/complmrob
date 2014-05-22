@@ -29,7 +29,7 @@ summary.bccomplmrob <- function(object, conf.level = 0.95, conf.type = "perc", .
 
     class(ret) <- "summary.complmrob";
     return(ret);
-}s
+}
 
 #' @import robustbase
 #' @importFrom boot boot.ci
