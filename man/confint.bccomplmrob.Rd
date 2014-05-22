@@ -3,13 +3,13 @@
 \alias{confint.bccomplmrob}
 \title{Extract the confidence intervals of the coefficients from the compositional lmrob object}
 \usage{
-\method{confint}{bccomplmrob}(object, param, level = 0.95, type = c("bca",
+\method{confint}{bccomplmrob}(object, parm, level = 0.95, type = c("bca",
   "perc", "norm", "basic", "stud"), ...)
 }
 \arguments{
 \item{object}{the returned object from a call to bootcoefs}
 
-\item{param}{a specification of which parameters are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.}
+\item{parm}{a specification of which parameters are to be given confidence intervals, either a vector of numbers or a vector of names. If missing, all parameters are considered.}
 
 \item{level}{the confidence level required.}
 

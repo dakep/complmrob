@@ -9,13 +9,17 @@
 \arguments{
 \item{x}{The complmrob object to plot}
 
+\item{y}{ignored}
+
 \item{type}{one of \code{"response"} to plot the response or \code{"model"} to get the standard
 lmrob model diagnostic plots.}
 
 \item{se}{should the confidence interval be shown in the response plot}
 
 \item{conf.level}{if the confidence interval is shown in the response plot, this parameter sets
-     the level of the confidence interval}
+the level of the confidence interval}
+
+\item{...}{ignored}
 }
 \description{
 Diagnostic plots for the robust regression model with compositional covariats

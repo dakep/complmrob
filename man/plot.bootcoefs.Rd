@@ -9,12 +9,18 @@
 \arguments{
 \item{x}{the object to plot, as returned by the \code{\link{bootcoefs}} function}
 
+\item{y}{ignored}
+
 \item{conf.level}{the level of the confidence interval that is plotted as shaded region under the
 density estimate.}
+
+\item{conf.type}{the confidence interval type, see \code{\link{boot.ci}} for details}
 
 \item{kernel}{the kernel used for density estimation, see \code{\link{density}} for details.}
 
 \item{adjust}{see \code{\link{density}} for details.}
+
+\item{...}{ignored}
 }
 \description{
 Plot the distribution of the bootstrap estimates

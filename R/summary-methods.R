@@ -1,9 +1,9 @@
 #' @import robustbase
 #' @export
-summary.bccomplmrob <- function(x, conf.level = 0.95, conf.type = "perc", ...) {    
+summary.bccomplmrob <- function(object, conf.level = 0.95, conf.type = "perc", ...) {    
     ret <- list(
-        obj = x$model,
-        R = x$R,
+        obj = object$model,
+        R = object$R,
         ci = NULL,
         stats = NULL,
         r.squared = NULL,
@@ -12,7 +12,7 @@ summary.bccomplmrob <- function(x, conf.level = 0.95, conf.type = "perc", ...) {
         type = "bootstrapped"
     );
     
-    statBs <- do.call(rbind, lapply(x$bootres, function(bo) {
+    statBs <- do.call(rbind, lapply(object$bootres, function(bo) {
         bias <- mean(bo$t, na.rm = TRUE) - bo$t0;
         pval <- (sum((sign(bo$t0) * bo$t) < 0, na.rm = TRUE) + 1) / (sum(!is.na(bo$t)) + 1);
         c(bias = bias, se = sd(bo$t), pval = pval)
@@ -20,12 +20,12 @@ summary.bccomplmrob <- function(x, conf.level = 0.95, conf.type = "perc", ...) {
     
     ret$stats <- cbind("bias" = statBs[ , 1L], "Std. Error" = statBs[ , 2L], "Pr(b<>0)" = statBs[ , 3L]);
     
-    ret$ci <- confint(x, level = conf.level, type = conf.type);
+    ret$ci <- confint(object, level = conf.level, type = conf.type);
     
-    sm <- summary(x$model$models[[1]]);
+    sm <- summary(object$model$models[[1]]);
     ret$r.squared <- sm$r.squared;
     ret$adj.r.squared <- sm$adj.r.squared;
-    ret$scale = x$model$models[[1]]$scale;
+    ret$scale = object$model$models[[1]]$scale;
 
     class(ret) <- "summary.complmrob";
     return(ret);
@@ -34,10 +34,10 @@ summary.bccomplmrob <- function(x, conf.level = 0.95, conf.type = "perc", ...) {
 #' @import robustbase
 #' @importFrom boot boot.ci
 #' @export
-summary.bclmrob <- function(x, conf.level = 0.95, conf.type = "perc", ...) {    
+summary.bclmrob <- function(object, conf.level = 0.95, conf.type = "perc", ...) {    
     ret <- list(
-        obj = x$model,
-        R = x$R,
+        obj = object$model,
+        R = object$R,
         ci = NULL,
         stats = NULL,
         r.squared = NULL,
@@ -46,23 +46,23 @@ summary.bclmrob <- function(x, conf.level = 0.95, conf.type = "perc", ...) {
         type = "bootlmrob"
     );
 
-    nc <- ncol(x$bootres$t);
-    bsl <- split(x$bootres$t, rep.int(seq_len(nc), times = rep.int(nrow(x$bootres$t), nc)));
+    nc <- ncol(object$bootres$t);
+    bsl <- split(object$bootres$t, rep.int(seq_len(nc), times = rep.int(nrow(object$bootres$t), nc)));
 
     statBs <- do.call(rbind, mapply(function(t, t0) {
         bias <- mean(t, na.rm = TRUE) - t0;
         pval <- (sum((sign(t0) * t) < 0, na.rm = TRUE) + 1) / (sum(!is.na(t)) + 1);
         c(bias = bias, se = sd(t), pval = pval)
-    }, bsl, x$bootres$t0, SIMPLIFY = FALSE));
+    }, bsl, object$bootres$t0, SIMPLIFY = FALSE));
     
     ret$stats <- cbind("bias" = statBs[ , 1L], "Std. Error" = statBs[ , 2L], "Pr(b<>0)" = statBs[ , 3L]);
 
-    ret$ci <- confint(x, level = conf.level, type = conf.type);
+    ret$ci <- confint(object, level = conf.level, type = conf.type);
     
-    sm <- summary(x$model);
+    sm <- summary(object$model);
     ret$r.squared <- sm$r.squared;
     ret$adj.r.squared <- sm$adj.r.squared;
-    ret$scale = x$model$scale;
+    ret$scale = object$model$scale;
     
     class(ret) <- "summary.complmrob";
     return(ret);
@@ -70,9 +70,9 @@ summary.bclmrob <- function(x, conf.level = 0.95, conf.type = "perc", ...) {
 
 #' @import robustbase
 #' @export
-summary.complmrob <- function(x, conf.level = 0.95, ...) {
+summary.complmrob <- function(object, conf.level = 0.95, ...) {
     ret <- list(
-        obj = x,
+        obj = object,
         ci = NULL,
         stats = NULL,
         r.squared = NULL,
@@ -81,22 +81,22 @@ summary.complmrob <- function(x, conf.level = 0.95, ...) {
         type = "theoretical"
     );
     
-    intercSe <- sqrt(x$models[[1]]$cov[x$coefind, x$coefind]);
-    intercTval <- x$models[[1]]$coefficients[1] / intercSe;
+    intercSe <- sqrt(object$models[[1]]$cov[object$coefind, object$coefind]);
+    intercTval <- object$models[[1]]$coefficients[1] / intercSe;
     
     thParams <- list();
     
-    if(x$intercept == TRUE) {
+    if(object$intercept == TRUE) {
         thParams <- list("(Intercept)" = c(
             se = intercSe,
             tval = intercTval,
-            pval = 2 * pt(abs(intercTval), x$models[[1]]$df.residual, lower.tail = FALSE)
+            pval = 2 * pt(abs(intercTval), object$models[[1]]$df.residual, lower.tail = FALSE)
         ));
     }
     
-    thParams <- c(thParams, lapply(x$models, function(m) {
-        se <- sqrt(m$cov[x$coefind, x$coefind]);
-        tval <- m$coefficients[x$coefind] / se;
+    thParams <- c(thParams, lapply(object$models, function(m) {
+        se <- sqrt(m$cov[object$coefind, object$coefind]);
+        tval <- m$coefficients[object$coefind] / se;
         return(c(
             se = se,
             tval <- tval,
@@ -109,20 +109,20 @@ summary.complmrob <- function(x, conf.level = 0.95, ...) {
     
     ret$ci <- list();
     
-    if(x$intercept == TRUE) {
-        ret$ci <- list("(Intercept)" = confint(x$models[[1]], level = conf.level)[1L, ]);
+    if(object$intercept == TRUE) {
+        ret$ci <- list("(Intercept)" = confint(object$models[[1]], level = conf.level)[1L, ]);
     }
     
-    ret$ci <- c(ret$ci, lapply(x$models, function(m) {
-        confint(m, level = conf.level)[x$coefind, ]
+    ret$ci <- c(ret$ci, lapply(object$models, function(m) {
+        confint(m, level = conf.level)[object$coefind, ]
     }));
     
     ret$ci <- do.call(rbind, ret$ci);
 
-    sm <- summary(x$models[[1]]);
+    sm <- summary(object$models[[1]]);
     ret$r.squared <- sm$r.squared;
     ret$adj.r.squared <- sm$adj.r.squared;
-    ret$scale = x$models[[1]]$scale;
+    ret$scale = object$models[[1]]$scale;
     
     class(ret) <- "summary.complmrob";
     return(ret);

@@ -1,13 +1,14 @@
 #' Diagnostic plots for the robust regression model with compositional covariats
 #'
 #' @param x The complmrob object to plot
+#' @param y ignored
 #' @param type one of \code{"response"} to plot the response or \code{"model"} to get the standard
 #'      lmrob model diagnostic plots.
 #' @param se should the confidence interval be shown in the response plot
 #' @param conf.level if the confidence interval is shown in the response plot, this parameter sets
 #'      the level of the confidence interval
-#'
-#' @importFrom reshape2 melt
+#' @param ... ignored
+#' 
 #' @import ggplot2
 #' @method plot complmrob
 #' @export
@@ -20,14 +21,12 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
         respVar <- as.character(x$formula[[2]]);
 
         y <- unname(model.response(model.frame(x$models[[1]]), "numeric"));
-        compParts <- reshape2::melt(lapply(x$models, function(m) {
-            return(model.frame(m)[ , 2L])
-        }))
+        compParts <- lapply(x$models, function(m) {
+            return(model.frame(m)[ , 2L, drop = TRUE])
+        });
 
-        colnames(compParts) <- c("value", "part");
-        compParts$part <- factor(compParts$part, levels = names(x$models))
-
-        X <- cbind(y, compParts);
+        X <- data.frame(y = y, value = do.call(c, compParts),
+            part = factor(rep.int(names(x$models), rep.int(length(y), length(x$models))), names(x$models)));
 
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
             ggplot2::geom_point() +
@@ -43,11 +42,14 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' Plot the distribution of the bootstrap estimates
 #'
 #' @param x the object to plot, as returned by the \code{\link{bootcoefs}} function
+#' @param y ignored
 #' @param conf.level the level of the confidence interval that is plotted as shaded region under the
 #'      density estimate.
+#' @param conf.type the confidence interval type, see \code{\link{boot.ci}} for details
 #' @param kernel the kernel used for density estimation, see \code{\link{density}} for details.
 #' @param adjust see \code{\link{density}} for details.
-#' @importFrom reshape2 melt
+#' @param ... ignored
+#' 
 #' @import ggplot2
 #' @method plot bootcoefs
 #' @export
@@ -63,7 +65,8 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
         });
     }
 
-    replicatesLong <- reshape2::melt(replicates);
+    replicatesLong <- data.frame(x = do.call(c, replicates),
+        coef = rep.int(names(replicates), sapply(replicates, length)));
     
     ci <- confint(x, level = conf.level, type = conf.type);
     ci <- split(ci, rep.int(seq_len(nrow(ci)), ncol(ci)));
@@ -75,8 +78,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
 
     replicatesDens <- do.call(rbind, replicatesDE);
     replicatesDens$coef <- factor(rep.int(names(replicatesDE), times = sapply(replicatesDE, nrow)), levels = names(replicatesDE));
-    
-    colnames(replicatesLong) <- c("x", "coef");
+
     trueCoefs <- data.frame(coef = names(x$model$coefficients), x = unname(x$model$coefficients));
     
     p <- ggplot2::ggplot(replicatesDens, aes(x = x)) +
@@ -87,7 +89,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
         ggplot2::facet_wrap(~ coef, scales = "free") +
         ggplot2::scale_y_continuous(expand = c(0, 0)) +
         ggplot2::ggtitle(sprintf("Distribution of %d bootstrap estimates with %s confidence interval", x$R,
-            stats:::format.perc(conf.level, 2))) +
+            format.perc(conf.level, 2))) +
         ggplot2::xlab(NULL) +
         ggplot2::ylab(NULL) +
         ggplot2::theme_bw() +
@@ -107,6 +109,15 @@ complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model) {
     return(x)
 }
 
+#' This function is used by ggplot2 to predict the values for a \code{complmrob} model
+#' 
+#' The function is exported solely because the ggplot2 method \code{predictdf} is not exported
+#' and thus the generics system would not be working otherwise.
+#' 
+#' @param model the complmrob.part model the prediction should be done for
+#' @param xseq the sequence of x values to predict for
+#' @param se should the confidence interval be returned as well
+#' @param level the level of the confidence interval (if any)
 #' @import robustbase
 #' @export
 predictdf.complmrob.part <- function(model, xseq, se, level) {

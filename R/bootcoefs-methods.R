@@ -6,6 +6,7 @@
 #'      the residuals or \code{"cases"} to resample the cases
 #' @param ncpus the number of CPUs to utilize for bootstrapping
 #' @param cl a snow or parallel cluster to use for bootstrapping
+#' @param ... further arguments needed by the specializations
 #' @export
 bootcoefs <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
     UseMethod("bootcoefs", object);
@@ -13,6 +14,13 @@ bootcoefs <- function(object, R = 999, method = c("frb", "residuals", "cases"), 
 
 #' Bootstrap the coefficients from the compositional robust regression model
 #' 
+#' @param object the complmrob model for which the estimates are bootstrapped
+#' @param R the number of replicates
+#' @param method one of \code{"frb"} for fast and robust bootstrap, \code{"residuals"} to resample
+#'      the residuals or \code{"cases"} to resample the cases
+#' @param ncpus the number of CPUs to utilize for bootstrapping
+#' @param cl a snow or parallel cluster to use for bootstrapping
+#' @param ... currently ignored
 #' @export
 #' @importFrom boot boot
 bootcoefs.complmrob <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
@@ -109,6 +117,13 @@ bootcoefs.complmrob <- function(object, R = 999, method = c("frb", "residuals", 
 
 #' Bootstrap the coefficients from a single robust regression model
 #' 
+#' @param object the lmrob model object for which the estimates are bootstrapped
+#' @param R the number of replicates
+#' @param method one of \code{"frb"} for fast and robust bootstrap, \code{"residuals"} to resample
+#'      the residuals or \code{"cases"} to resample the cases
+#' @param ncpus the number of CPUs to utilize for bootstrapping
+#' @param cl a snow or parallel cluster to use for bootstrapping
+#' @param ... currently ignored
 #' @export
 #' @importFrom boot boot
 bootcoefs.lmrob <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
@@ -178,7 +193,7 @@ setupCluster <- function(ncpus, cl) {
         parallel <- "snow";
         tryCatch({
             parallel::clusterEvalQ(cl, {
-                suppressPackageStartupMessages(library(robustbase));
+                loadNamespace("robustbase");
             });
             parallel::clusterExport(cl, varlist = c("isomLR"));
         }, error = function(e) {
