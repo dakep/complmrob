@@ -6,6 +6,20 @@
 \method{bootcoefs}{complmrob}(object, R = 999, method = c("frb",
   "residuals", "cases"), ncpus = NULL, cl = NULL, ...)
 }
+\arguments{
+\item{object}{the complmrob model for which the estimates are bootstrapped}
+
+\item{R}{the number of replicates}
+
+\item{method}{one of \code{"frb"} for fast and robust bootstrap, \code{"residuals"} to resample
+the residuals or \code{"cases"} to resample the cases}
+
+\item{ncpus}{the number of CPUs to utilize for bootstrapping}
+
+\item{cl}{a snow or parallel cluster to use for bootstrapping}
+
+\item{...}{currently ignored}
+}
 \description{
 Bootstrap the coefficients from the compositional robust regression model
 }

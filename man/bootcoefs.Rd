@@ -17,6 +17,8 @@ the residuals or \code{"cases"} to resample the cases}
 \item{ncpus}{the number of CPUs to utilize for bootstrapping}
 
 \item{cl}{a snow or parallel cluster to use for bootstrapping}
+
+\item{...}{further arguments needed by the specializations}
 }
 \description{
 Get the bootstrap distribution of the parameter estimates
