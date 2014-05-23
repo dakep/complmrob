@@ -1,22 +1,43 @@
 #' Diagnostic plots for the robust regression model with compositional covariats
+#' 
+#' Plot the response or the model diagnostic plots for robust linear regression model with compositional
+#' data
+#' 
+#' The response plot shows the value on the first component of the orthonormal basis versus the response
+#' and the fitted values. For the fitted values, the other components are set to the median of the values
+#' in that direction, this may change in the future, as it is sub-optimal.
+#' 
+#' For the model diagnostic plots see the details in the help file for \code{\link[robustbase]{plot.lmrob}}.
+#' The model diagnostic plots are the same for all sub-models fit to the data transformed with the different
+#' orthonormal basis.
 #'
-#' @param x The complmrob object to plot
+#' @param x the object returned by \code{\link{complmrob}}
 #' @param y ignored
 #' @param type one of \code{"response"} to plot the response or \code{"model"} to get the standard
-#'      lmrob model diagnostic plots.
+#'      \code{\link[robustbase]{lmrob}} model diagnostic plots. Partial matching is performed, so any unique
+#'      abbreviation of the two possible values is excepted (e.g., \code{"r"} for the response plot).
 #' @param se should the confidence interval be shown in the response plot
 #' @param conf.level if the confidence interval is shown in the response plot, this parameter sets
 #'      the level of the confidence interval
-#' @param ... ignored
+#' @param ... futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).
 #' 
 #' @import ggplot2
 #' @method plot complmrob
-#' @export
+#' @examples
+#' \donttest{
+#' library(robCompositions)
+#' data(expendituresEU)
+#' data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
+#' 
+#' compModel <- complmrob(y ~ ., data = data)
+#' plot(compModel) # for the response plot
+#' plot(compModel, type = "model") # for the model diagnostic plots
+#' }
 plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95, ...) {
     type <- match.arg(type);
 
     if(type == "model") {
-        plot(x$models[[1]]);
+        plot(x$models[[1]], ...);
     } else {
         respVar <- as.character(x$formula[[2]]);
 
@@ -40,18 +61,21 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 }
 
 #' Plot the distribution of the bootstrap estimates
+#' 
+#' Plot the distribution of the bootstrap estimates and the confidence intervals for the estimates
 #'
-#' @param x the object to plot, as returned by the \code{\link{bootcoefs}} function
-#' @param y ignored
+#' @param x the object returned by a call to the \code{\link{bootcoefs}} function.
+#' @param y ignored.
 #' @param conf.level the level of the confidence interval that is plotted as shaded region under the
 #'      density estimate.
-#' @param conf.type the confidence interval type, see \code{\link{boot.ci}} for details
-#' @param kernel the kernel used for density estimation, see \code{\link{density}} for details.
-#' @param adjust see \code{\link{density}} for details.
+#' @param conf.type the confidence interval type, see \code{\link[boot]{boot.ci}} for details.
+#' @param kernel the kernel used for density estimation, see \code{\link[stats]{density}} for details.
+#' @param adjust see \code{\link[stats]{density}} for details.
 #' @param ... ignored
 #' 
 #' @import ggplot2
 #' @method plot bootcoefs
+#' @seealso \code{\link[=confint.bccomplmrob]{confint}} to get the numerical values for the confidence intervals
 #' @export
 plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", kernel = "gaussian", adjust = 1, ...) {
     replicates <- list();
@@ -109,10 +133,14 @@ complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model) {
     return(x)
 }
 
-#' This function is used by ggplot2 to predict the values for a \code{complmrob} model
+#' Predict values for a \code{complmrob.part} object
 #' 
-#' The function is exported solely because the ggplot2 method \code{predictdf} is not exported
-#' and thus the generics system would not be working otherwise.
+#' This function is used by ggplot2 to predict the values for a \code{complmrob} model and should usally not
+#' be needed by the user.
+#' 
+#' The sole reason that this function is visible is because the \code{\link{ggplot2}} function
+#' \code{predictdf} is not exported and thus this function could not be used for \code{complmrob.part}
+#' objects if it was not exported.
 #' 
 #' @param model the complmrob.part model the prediction should be done for
 #' @param xseq the sequence of x values to predict for
