@@ -7,21 +7,43 @@
   se = TRUE, conf.level = 0.95, ...)
 }
 \arguments{
-\item{x}{The complmrob object to plot}
+\item{x}{the object returned by \code{\link{complmrob}}}
 
 \item{y}{ignored}
 
 \item{type}{one of \code{"response"} to plot the response or \code{"model"} to get the standard
-lmrob model diagnostic plots.}
+\code{\link[robustbase]{lmrob}} model diagnostic plots. Partial matching is performed, so any unique
+abbreviation of the two possible values is excepted (e.g., \code{"r"} for the response plot).}
 
 \item{se}{should the confidence interval be shown in the response plot}
 
 \item{conf.level}{if the confidence interval is shown in the response plot, this parameter sets
 the level of the confidence interval}
 
-\item{...}{ignored}
+\item{...}{futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).}
 }
 \description{
-Diagnostic plots for the robust regression model with compositional covariats
+Plot the response or the model diagnostic plots for robust linear regression model with compositional
+data
+}
+\details{
+The response plot shows the value on the first component of the orthonormal basis versus the response
+and the fitted values. For the fitted values, the other components are set to the median of the values
+in that direction, this may change in the future, as it is sub-optimal.
+
+For the model diagnostic plots see the details in the help file for \code{\link[robustbase]{plot.lmrob}}.
+The model diagnostic plots are the same for all sub-models fit to the data transformed with the different
+orthonormal basis.
+}
+\examples{
+\donttest{
+library(robCompositions)
+data(expendituresEU)
+data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
+
+compModel <- complmrob(y ~ ., data = data)
+plot(compModel) # for the response plot
+plot(compModel, type = "model") # for the model diagnostic plots
+}
 }
 

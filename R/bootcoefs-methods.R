@@ -1,26 +1,29 @@
-#' Get the bootstrap distribution of the parameter estimates
+#' Bootstrap the regression coefficients for a robust linear regression model
+#' 
+#' This function provides an easy interface and useful output to bootstrapping the regression
+#' coefficients of robust linear regression models
+#' 
+#' The default method is to use fast and robust bootstrap as described in the paper by M. Salibian-Barrera, et al.
+#' (see references). The other options are to bootstrap the residuals or to bootstrap cases (observations),
+#' but the sampling distribution of the estimates from these methods can be numerically instable and take
+#' longer to compute.
 #'
-#' @param object the object to bootstrap the coefficients from
-#' @param R the number of replicates
+#' @param object the model to bootstrap the coefficients from
+#' @param R the number of bootstrap replicates.
 #' @param method one of \code{"frb"} for fast and robust bootstrap, \code{"residuals"} to resample
-#'      the residuals or \code{"cases"} to resample the cases
-#' @param ncpus the number of CPUs to utilize for bootstrapping
-#' @param cl a snow or parallel cluster to use for bootstrapping
-#' @param ... further arguments needed by the specializations
+#'      the residuals or \code{"cases"} to resample the cases.
+#' @param ncpus the number of CPUs to utilize for bootstrapping.
+#' @param cl a snow or parallel cluster to use for bootstrapping.
+#' @param ... currently ignored.
+#' @return A list of type \code{bootcoefs} for which \code{\link[=print.bootcoefs]{print}},
+#'      \code{\link{summary}} and \code{\link[=plot.bootcoefs]{plot}} methods are available
 #' @export
+#' @references M. Salibian-Barrera, S. Aelst, and G. Willems. Fast and robust bootstrap. Statistical Methods and Applications, 17(1):41-71, 2008.
 bootcoefs <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
     UseMethod("bootcoefs", object);
 }
 
-#' Bootstrap the coefficients from the compositional robust regression model
-#' 
-#' @param object the complmrob model for which the estimates are bootstrapped
-#' @param R the number of replicates
-#' @param method one of \code{"frb"} for fast and robust bootstrap, \code{"residuals"} to resample
-#'      the residuals or \code{"cases"} to resample the cases
-#' @param ncpus the number of CPUs to utilize for bootstrapping
-#' @param cl a snow or parallel cluster to use for bootstrapping
-#' @param ... currently ignored
+#' @describeIn bootcoefs For robust linear regression models with compositional data
 #' @export
 #' @importFrom boot boot
 bootcoefs.complmrob <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
@@ -135,15 +138,7 @@ bootcoefs.complmrob <- function(object, R = 999, method = c("frb", "residuals", 
     return(ret);
 }
 
-#' Bootstrap the coefficients from a single robust regression model
-#' 
-#' @param object the lmrob model object for which the estimates are bootstrapped
-#' @param R the number of replicates
-#' @param method one of \code{"frb"} for fast and robust bootstrap, \code{"residuals"} to resample
-#'      the residuals or \code{"cases"} to resample the cases
-#' @param ncpus the number of CPUs to utilize for bootstrapping
-#' @param cl a snow or parallel cluster to use for bootstrapping
-#' @param ... currently ignored
+#' @describeIn bootcoefs For standard robust linear regression models
 #' @export
 #' @importFrom boot boot
 bootcoefs.lmrob <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
