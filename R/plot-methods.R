@@ -23,6 +23,7 @@
 #' 
 #' @import ggplot2
 #' @method plot complmrob
+#' @export
 #' @examples
 #' \donttest{
 #' library(robCompositions)
