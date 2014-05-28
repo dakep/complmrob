@@ -22,7 +22,7 @@
 #' @param ... futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).
 #' 
 #' @import ggplot2
-#' @import scales
+#' @importFrom scales percent
 #' @method plot complmrob
 #' @export
 #' @examples

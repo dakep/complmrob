@@ -6,12 +6,12 @@
 isomLR(x, comp = 1)
 }
 \arguments{
-\item{x}{a numeric vector of length p or a numeric matrix with p columns}
+\item{x}{a numeric vector of length \code{p} or a numeric matrix with \code{p} columns}
 
 \item{comp}{the component to use as the first compositional part}
 }
 \value{
-a numeric matrix with (p-1) columns with the transformed values. The name of the first
+a numeric matrix with \code{(p-1)} columns with the transformed values. The name of the first
     	column is the name of the first part (the other names are according to the order of the
 		columns in the given matrix \code{x})
 }
