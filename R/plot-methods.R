@@ -1,12 +1,12 @@
 #' Diagnostic plots for the robust regression model with compositional covariats
-#' 
+#'
 #' Plot the response or the model diagnostic plots for robust linear regression model with compositional
 #' data
-#' 
+#'
 #' The response plot shows the value on the first component of the orthonormal basis versus the response
 #' and the fitted values. For the fitted values, the other components are set to the median of the values
 #' in that direction, this may change in the future, as it is sub-optimal.
-#' 
+#'
 #' For the model diagnostic plots see the details in the help file for \code{\link[robustbase]{plot.lmrob}}.
 #' The model diagnostic plots are the same for all sub-models fit to the data transformed with the different
 #' orthonormal basis.
@@ -20,7 +20,7 @@
 #' @param conf.level if the confidence interval is shown in the response plot, this parameter sets
 #'      the level of the confidence interval
 #' @param ... futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).
-#' 
+#'
 #' @import ggplot2
 #' @importFrom scales percent
 #' @method plot complmrob
@@ -30,7 +30,7 @@
 #' library(robCompositions)
 #' data(expendituresEU)
 #' data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
-#' 
+#'
 #' compModel <- complmrob(y ~ ., data = data)
 #' plot(compModel) # for the response plot
 #' plot(compModel, type = "model") # for the model diagnostic plots
@@ -58,7 +58,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             ggplot2::facet_grid(. ~ part, scales = "fixed") +
             ggplot2::ylab(respVar) +
             ggplot2::scale_x_continuous(labels = scales::percent) +
-            ggplot2::ylab("Share") +
+            ggplot2::xlab("Share") +
             ggplot2::theme_bw();
 
         return(p);
@@ -66,7 +66,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 }
 
 #' Plot the distribution of the bootstrap estimates
-#' 
+#'
 #' Plot the distribution of the bootstrap estimates and the confidence intervals for the estimates
 #'
 #' @param x the object returned by a call to the \code{\link{bootcoefs}} function.
@@ -77,7 +77,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' @param kernel the kernel used for density estimation, see \code{\link[stats]{density}} for details.
 #' @param adjust see \code{\link[stats]{density}} for details.
 #' @param ... ignored
-#' 
+#'
 #' @import ggplot2
 #' @method plot bootcoefs
 #' @seealso \code{\link[=confint.bccomplmrob]{confint}} to get the numerical values for the confidence intervals
@@ -96,10 +96,10 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
 
     replicatesLong <- na.omit(data.frame(x = do.call(c, replicates),
         coef = rep.int(names(replicates), sapply(replicates, length))));
-    
+
     ci <- confint(x, level = conf.level, type = conf.type);
     ci <- split(ci, rep.int(seq_len(nrow(ci)), ncol(ci)));
-    
+
     replicatesDE <- mapply(function(t, ci) {
         de <- density(t, from = ci[1], to = ci[2], kernel = kernel, adjust = adjust, na.rm = TRUE);
         return(data.frame(x = de$x, y = de$y));
@@ -109,7 +109,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     replicatesDens$coef <- factor(rep.int(names(replicatesDE), times = sapply(replicatesDE, nrow)), levels = names(replicatesDE));
 
     trueCoefs <- data.frame(coef = names(x$model$coefficients), x = unname(x$model$coefficients));
-    
+
     p <- ggplot2::ggplot(replicatesDens, aes(x = x)) +
         ggplot2::geom_area(mapping = aes(y = y), fill = "#56B4E9", alpha = 0.4) +
         ggplot2::stat_density(data = replicatesLong, mapping = aes(ymax = ..density..), geom = "line",
@@ -123,9 +123,9 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
         ggplot2::ylab(NULL) +
         ggplot2::theme_bw() +
         ggplot2::theme(
-            axis.text.y = ggplot2::element_blank(), 
+            axis.text.y = ggplot2::element_blank(),
             axis.ticks.y = ggplot2::element_blank());
-    
+
     return(p);
 }
 
@@ -139,14 +139,14 @@ complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model) {
 }
 
 #' Predict values for a \code{complmrob.part} object
-#' 
+#'
 #' This function is used by ggplot2 to predict the values for a \code{complmrob} model and should usally not
 #' be needed by the user.
-#' 
+#'
 #' The sole reason that this function is visible is because the \code{\link{ggplot2}} function
 #' \code{predictdf} is not exported and thus this function could not be used for \code{complmrob.part}
 #' objects if it was not exported.
-#' 
+#'
 #' @param model the complmrob.part model the prediction should be done for
 #' @param xseq the sequence of x values to predict for
 #' @param se should the confidence interval be returned as well
@@ -177,6 +177,6 @@ predictdf.complmrob.part <- function(model, xseq, se, level) {
     }
 
     Zinv <- isomLRinv(as.matrix(preddata));
-    
+
     return(data.frame(x = Zinv[ , 1], pred))
 }
