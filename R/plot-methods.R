@@ -22,6 +22,7 @@
 #' @param ... futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).
 #' 
 #' @import ggplot2
+#' @import scales
 #' @method plot complmrob
 #' @export
 #' @examples
@@ -44,7 +45,8 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 
         y <- unname(model.response(model.frame(x$models[[1]]), "numeric"));
         compParts <- lapply(x$models, function(m) {
-            return(model.frame(m)[ , 2L, drop = TRUE])
+            trX <- as.matrix(model.frame(model.frame(m)[ , -1L, drop = FALSE]));
+            return(isomLRinv(trX, perc = TRUE)[ , 1L, drop = TRUE]);
         });
 
         X <- data.frame(y = y, value = do.call(c, compParts),
@@ -55,6 +57,8 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, se = se, level = conf.level) +
             ggplot2::facet_grid(. ~ part, scales = "fixed") +
             ggplot2::ylab(respVar) +
+            ggplot2::scale_x_continuous(labels = scales::percent) +
+            ggplot2::ylab("Share") +
             ggplot2::theme_bw();
 
         return(p);
@@ -151,18 +155,18 @@ complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model) {
 #' @export
 predictdf.complmrob.part <- function(model, xseq, se, level) {
     getSeq <- function(x, length = 100) {
-        # 		r <- range(x)
-        # 		seq(from = r[1], to = r[2], length = length)
-        rep.int(median(x), times = length)
+        rep.int(mean(x), times = length)
     };
 
-    origdata <- model$x[ , -which(colnames(model$x) == model$part), drop = FALSE];
+    partColumn <- which(colnames(model$x) == model$part);
+    origdata <- model$x[ , -partColumn, drop = FALSE];
     if(attr(model$terms, "intercept") == 1) {
         origdata <- origdata[ , -1, drop = FALSE];
     }
-    preddata <- data.frame(part = xseq, apply(origdata, 2, getSeq, length = length(xseq)));
+    suppressWarnings(preddata <- data.frame(part = pretty(model$x[ , partColumn, drop = TRUE], length(xseq)), colMeans(origdata)));
 
     colnames(preddata)[1] <- model$part;
+    colnames(preddata)[-1] <- colnames(origdata);
     class(model) <- "lmrob";
 
     pred <- predict(model, newdata = preddata, interval = ifelse(se, "confidence", "none"), level = level);
@@ -171,5 +175,8 @@ predictdf.complmrob.part <- function(model, xseq, se, level) {
     } else {
         pred <- data.frame(y = pred);
     }
-    return(data.frame(x = xseq, pred))
+
+    Zinv <- isomLRinv(as.matrix(preddata));
+    
+    return(data.frame(x = Zinv[ , 1], pred))
 }
