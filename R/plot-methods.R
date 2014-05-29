@@ -11,14 +11,18 @@
 #' The model diagnostic plots are the same for all sub-models fit to the data transformed with the different
 #' orthonormal basis.
 #'
-#' @param x the object returned by \code{\link{complmrob}}
-#' @param y ignored
+#' @param x the object returned by \code{\link{complmrob}}.
+#' @param y ignored.
 #' @param type one of \code{"response"} to plot the response or \code{"model"} to get the standard
 #'      \code{\link[robustbase]{lmrob}} model diagnostic plots. Partial matching is performed, so any unique
 #'      abbreviation of the two possible values is excepted (e.g., \code{"r"} for the response plot).
-#' @param se should the confidence interval be shown in the response plot
+#' @param se should the confidence interval be shown in the response plot.
 #' @param conf.level if the confidence interval is shown in the response plot, this parameter sets
-#'      the level of the confidence interval
+#'      the level of the confidence interval.
+#' @param theme the ggplot2 theme to use for the response plot.
+#' @param pointSize the size of the points in the response plot.
+#' @param lineWidth the width of the smoothing line in the response plot.
+#' @param lineColor the color of the smoothing line in the response plot.
 #' @param ... futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).
 #'
 #' @import ggplot2
@@ -35,7 +39,8 @@
 #' plot(compModel) # for the response plot
 #' plot(compModel, type = "model") # for the model diagnostic plots
 #' }
-plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95, ...) {
+plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95,
+    theme = ggplot2::theme_bw(), pointSize = ggplot2::rel(1), lineWidth = ggplot2::rel(1), lineColor = "grey20", ...) {
     type <- match.arg(type);
 
     if(type == "model") {
@@ -53,13 +58,14 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             part = factor(rep.int(names(x$models), rep.int(length(y), length(x$models))), names(x$models)));
 
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
-            ggplot2::geom_point() +
-            ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, se = se, level = conf.level) +
+            ggplot2::geom_point(size = pointSize) +
+            ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, se = se, level = conf.level,
+                size = lineWidth, color = lineColor) +
             ggplot2::facet_grid(. ~ part, scales = "fixed") +
             ggplot2::ylab(respVar) +
             ggplot2::scale_x_continuous(labels = scales::percent) +
             ggplot2::xlab("Share") +
-            ggplot2::theme_bw();
+            theme;
 
         return(p);
     }
@@ -76,13 +82,24 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' @param conf.type the confidence interval type, see \code{\link[boot]{boot.ci}} for details.
 #' @param kernel the kernel used for density estimation, see \code{\link[stats]{density}} for details.
 #' @param adjust see \code{\link[stats]{density}} for details.
+#' @param theme the ggplot2 theme to use for the plot.
+#' @param confColor the color of the confidence area beneath the density estimation.
+#' @param confAlpha the transparency level between 0 (completely transparent) and 1 (completely opaque)
+#'      of the confidence area
+#' @param estLineWidth the width of the line that is placed at the original parameter estimate.
+#' @param estLineStyle the style of the line that is placed at the original parameter estimate.
+#' @param estLineColor the color of the line that is placed at the original parameter estimate.
+#' @param densLineColor the color of the density estimate.
+#' @param densLineWidth the width of the density estimate.
 #' @param ... ignored
 #'
 #' @import ggplot2
 #' @method plot bootcoefs
 #' @seealso \code{\link[=confint.bccomplmrob]{confint}} to get the numerical values for the confidence intervals
 #' @export
-plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", kernel = "gaussian", adjust = 1, ...) {
+plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", kernel = "gaussian", adjust = 1,
+    theme = ggplot2::theme_bw(), confColor = "#56B4E9", confAlpha = 0.4, estLineWidth = rel(1), estLineStyle = "dashed",
+    estLineColor = "black", densLineColor = "black", densLineWidth = ggplot2::rel(0.5), ...) {
     replicates <- list();
     if(class(x$bootres) == "boot") {
         nc <- ncol(x$bootres$t);
@@ -111,20 +128,23 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     trueCoefs <- data.frame(coef = names(x$model$coefficients), x = unname(x$model$coefficients));
 
     p <- ggplot2::ggplot(replicatesDens, aes(x = x)) +
-        ggplot2::geom_area(mapping = aes(y = y), fill = "#56B4E9", alpha = 0.4) +
+        ggplot2::geom_area(mapping = aes(y = y), fill = confColor, alpha = confAlpha) +
         ggplot2::stat_density(data = replicatesLong, mapping = aes(ymax = ..density..), geom = "line",
-            kernel = kernel, adjust = adjust) +
-        ggplot2::geom_vline(data = trueCoefs, aes(xintercept = x), linetype = "dashed", size = 1) +
+            kernel = kernel, adjust = adjust,
+            color = densLineColor, size = densLineWidth) +
+        ggplot2::geom_vline(data = trueCoefs, aes(xintercept = x), linetype = estLineStyle,
+            size = estLineWidth, color = estLineColor) +
         ggplot2::facet_wrap(~ coef, scales = "free") +
         ggplot2::scale_y_continuous(expand = c(0, 0)) +
         ggplot2::ggtitle(sprintf("Distribution of %d bootstrap estimates with %s confidence interval", x$R,
             format.perc(conf.level, 2))) +
         ggplot2::xlab(NULL) +
         ggplot2::ylab(NULL) +
-        ggplot2::theme_bw() +
+        theme +
         ggplot2::theme(
             axis.text.y = ggplot2::element_blank(),
-            axis.ticks.y = ggplot2::element_blank());
+            axis.ticks.y = ggplot2::element_blank()
+        );
 
     return(p);
 }
