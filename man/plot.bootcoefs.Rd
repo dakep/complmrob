@@ -4,7 +4,10 @@
 \title{Plot the distribution of the bootstrap estimates}
 \usage{
 \method{plot}{bootcoefs}(x, y = NULL, conf.level = 0.95,
-  conf.type = "perc", kernel = "gaussian", adjust = 1, ...)
+  conf.type = "perc", kernel = "gaussian", adjust = 1,
+  theme = ggplot2::theme_bw(), confColor = "#56B4E9", confAlpha = 0.4,
+  estLineWidth = rel(1), estLineStyle = "dashed", estLineColor = "black",
+  densLineColor = "black", densLineWidth = ggplot2::rel(0.5), ...)
 }
 \arguments{
 \item{x}{the object returned by a call to the \code{\link{bootcoefs}} function.}
@@ -19,6 +22,23 @@ density estimate.}
 \item{kernel}{the kernel used for density estimation, see \code{\link[stats]{density}} for details.}
 
 \item{adjust}{see \code{\link[stats]{density}} for details.}
+
+\item{theme}{the ggplot2 theme to use for the plot.}
+
+\item{confColor}{the color of the confidence area beneath the density estimation.}
+
+\item{confAlpha}{the transparency level between 0 (completely transparent) and 1 (completely opaque)
+of the confidence area}
+
+\item{estLineWidth}{the width of the line that is placed at the original parameter estimate.}
+
+\item{estLineStyle}{the style of the line that is placed at the original parameter estimate.}
+
+\item{estLineColor}{the color of the line that is placed at the original parameter estimate.}
+
+\item{densLineColor}{the color of the density estimate.}
+
+\item{densLineWidth}{the width of the density estimate.}
 
 \item{...}{ignored}
 }

@@ -4,21 +4,31 @@
 \title{Diagnostic plots for the robust regression model with compositional covariats}
 \usage{
 \method{plot}{complmrob}(x, y = NULL, type = c("response", "model"),
-  se = TRUE, conf.level = 0.95, ...)
+  se = TRUE, conf.level = 0.95, theme = ggplot2::theme_bw(),
+  pointSize = ggplot2::rel(1), lineWidth = ggplot2::rel(1),
+  lineColor = "grey20", ...)
 }
 \arguments{
-\item{x}{the object returned by \code{\link{complmrob}}}
+\item{x}{the object returned by \code{\link{complmrob}}.}
 
-\item{y}{ignored}
+\item{y}{ignored.}
 
 \item{type}{one of \code{"response"} to plot the response or \code{"model"} to get the standard
 \code{\link[robustbase]{lmrob}} model diagnostic plots. Partial matching is performed, so any unique
 abbreviation of the two possible values is excepted (e.g., \code{"r"} for the response plot).}
 
-\item{se}{should the confidence interval be shown in the response plot}
+\item{se}{should the confidence interval be shown in the response plot.}
 
 \item{conf.level}{if the confidence interval is shown in the response plot, this parameter sets
-the level of the confidence interval}
+the level of the confidence interval.}
+
+\item{theme}{the ggplot2 theme to use for the response plot.}
+
+\item{pointSize}{the size of the points in the response plot.}
+
+\item{lineWidth}{the width of the smoothing line in the response plot.}
+
+\item{lineColor}{the color of the smoothing line in the response plot.}
 
 \item{...}{futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).}
 }
