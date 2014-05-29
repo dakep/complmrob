@@ -23,6 +23,8 @@
 #' @param pointSize the size of the points in the response plot.
 #' @param lineWidth the width of the smoothing line in the response plot.
 #' @param lineColor the color of the smoothing line in the response plot.
+#' @param stack how the facets are laid out in the response plot. \code{"horizontal"} for side by side and \code{"vertical"}
+#'      for on top of each other.
 #' @param ... futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).
 #'
 #' @import ggplot2
@@ -40,8 +42,10 @@
 #' plot(compModel, type = "model") # for the model diagnostic plots
 #' }
 plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95,
-    theme = ggplot2::theme_bw(), pointSize = ggplot2::rel(1), lineWidth = ggplot2::rel(1), lineColor = "grey20", ...) {
+    theme = ggplot2::theme_bw(), pointSize = ggplot2::rel(1), lineWidth = ggplot2::rel(1), lineColor = "grey20",
+    stack = c("horizontal", "vertical"), ...) {
     type <- match.arg(type);
+    stack <- match.arg(stack);
 
     if(type == "model") {
         plot(x$models[[1]], ...);
@@ -61,11 +65,13 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             ggplot2::geom_point(size = pointSize) +
             ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, se = se, level = conf.level,
                 size = lineWidth, color = lineColor) +
-            ggplot2::facet_grid(. ~ part, scales = "fixed") +
             ggplot2::ylab(respVar) +
             ggplot2::scale_x_continuous(labels = scales::percent) +
             ggplot2::xlab("Share") +
-            theme;
+            theme +
+            switch(stack,
+                vertical = ggplot2::facet_grid(part ~ ., scales = "fixed"),
+                ggplot2::facet_grid(. ~ part, scales = "fixed"));
 
         return(p);
     }
