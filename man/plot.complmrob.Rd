@@ -6,7 +6,7 @@
 \method{plot}{complmrob}(x, y = NULL, type = c("response", "model"),
   se = TRUE, conf.level = 0.95, theme = ggplot2::theme_bw(),
   pointSize = ggplot2::rel(1), lineWidth = ggplot2::rel(1),
-  lineColor = "grey20", ...)
+  lineColor = "grey20", stack = c("horizontal", "vertical"), ...)
 }
 \arguments{
 \item{x}{the object returned by \code{\link{complmrob}}.}
@@ -29,6 +29,9 @@ the level of the confidence interval.}
 \item{lineWidth}{the width of the smoothing line in the response plot.}
 
 \item{lineColor}{the color of the smoothing line in the response plot.}
+
+\item{stack}{how the facets are laid out in the response plot. \code{"horizontal"} for side by side and \code{"vertical"}
+for on top of each other.}
 
 \item{...}{futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).}
 }
