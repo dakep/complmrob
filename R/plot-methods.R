@@ -66,7 +66,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             return(trX[ , 1L]);
         });
 
-        pointStyle <- c(pointStyle, list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 1));
+        pointStyle <- c(pointStyle, list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = "solid"));
         lineStyle <- c(lineStyle, list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"))
         seBandStyle <- c(seBandStyle, list(color = "gray80", alpha = 0.5));
 
