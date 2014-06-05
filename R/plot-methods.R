@@ -45,7 +45,7 @@
 #' plot(compModel, type = "model") # for the model diagnostic plots
 #' }
 plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95,
-    scale = c("percent", "ilr"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = "solid"),
+    scale = c("percent", "ilr"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19),
     lineStyle = list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"), seBandStyle = list(color = "gray80", alpha = 0.5),
     stack = c("horizontal", "vertical"), ...) {
     type <- match.arg(type);
@@ -66,7 +66,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             return(trX[ , 1L]);
         });
 
-        pointStyle <- c(pointStyle, list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = "solid"));
+        pointStyle <- c(pointStyle, list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19));
         lineStyle <- c(lineStyle, list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"))
         seBandStyle <- c(seBandStyle, list(color = "gray80", alpha = 0.5));
 
