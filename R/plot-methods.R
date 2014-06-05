@@ -165,7 +165,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
             kernel = kernel, adjust = adjust,
             color = densityStyle$color, size = densityStyle$width, alpha = densityStyle$alpha,
             linetype = densityStyle$linetype) +
-        ggplot2::geom_segment(data = trueCoefs, aes(x = x, xend = x, y = 0, yend = 1.01 * y), linetype = estLineStyle$linetype,
+        ggplot2::geom_segment(data = trueCoefs, aes(x = x, xend = x, y = 0, yend = 1.02 * y), linetype = estLineStyle$linetype,
             size = estLineStyle$width, color = estLineStyle$color, alpha = estLineStyle$alpha) +
         ggplot2::scale_y_continuous(expand = c(0, 0)) +
         ggplot2::ggtitle(sprintf("Distribution of %d bootstrap estimates with %s confidence interval", x$R,
