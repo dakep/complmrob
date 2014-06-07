@@ -168,7 +168,7 @@ bootcoefs.lmrob <- function(object, R = 999, method = c("frb", "residuals", "cas
             respInd <- attr(object$terms, "response");
             tmpData <- data.frame(model.frame(object)[ , -respInd, drop = FALSE], fit = fitted(object), resid = residuals(object));
 
-            bootres <- boot::boot(data = tmpData, statistic = bootStatResiduals, weigths = object$rweights,
+            bootres <- boot::boot(data = tmpData, statistic = bootStatResiduals, weights = object$rweights,
                 R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
                 intercept = (attr(object$terms, "intercept") == 1), coefind = seq_along(coef(object)));
         } else {
