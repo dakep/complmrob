@@ -45,7 +45,7 @@
 #' plot(compModel, type = "model") # for the model diagnostic plots
 #' }
 plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95,
-    scale = c("percent", "ilr"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = "solid"),
+    scale = c("percent", "ilr"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19),
     lineStyle = list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"), seBandStyle = list(color = "gray80", alpha = 0.5),
     stack = c("horizontal", "vertical"), ...) {
     type <- match.arg(type);
@@ -66,7 +66,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             return(trX[ , 1L]);
         });
 
-        pointStyle <- c(pointStyle, list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 1));
+        pointStyle <- c(pointStyle, list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19));
         lineStyle <- c(lineStyle, list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"))
         seBandStyle <- c(seBandStyle, list(color = "gray80", alpha = 0.5));
 
@@ -123,15 +123,20 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     estLineStyle = list(color = "black", width = ggplot2::rel(1), alpha = 1, linetype = "dashed"),
     densityStyle = list(color = "black", width = ggplot2::rel(0.5), alpha = 1, linetype = "solid"), ...) {
 
-    if(length(which) == 1 && which == "all") {
-        which <- names(x$bootres);
-    }
+    allCoefNames <- names(coef(x$model));
     
+    if(length(which) == 1 && which == "all") {
+        which <- seq_along(allCoefNames);
+    } else if(is.character(which)) {
+        which <- na.omit(match(which, allCoefNames));
+    }
+
     replicates <- list();
     if(class(x$bootres) == "boot") {
-        nc <- ncol(x$bootres$t);
-        replicates <- split(x$bootres$t, rep.int(seq_len(nc), rep.int(nrow(x$bootres$t), nc)));
-        names(replicates) <- names(x$model$coefficients);
+        tsub <- x$bootres$t[ , which, drop = FALSE];
+        nc <- ncol(tsub);
+        replicates <- split(tsub, rep.int(seq_len(nc), rep.int(nrow(tsub), nc)));
+        names(replicates) <- allCoefNames[which];
     } else {
         replicates <- lapply(x$bootres[which], function(bo) {
             bo$t[ , 1, drop = TRUE]
