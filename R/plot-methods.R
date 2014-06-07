@@ -19,10 +19,13 @@
 #' @param se should the confidence interval be shown in the response plot.
 #' @param conf.level if the confidence interval is shown in the response plot, this parameter sets
 #'      the level of the confidence interval.
+#' @param scale should the x-axis in the response plot be in percentage or in the ILR-transformed scale?
 #' @param theme the ggplot2 theme to use for the response plot.
-#' @param pointSize the size of the points in the response plot.
-#' @param lineWidth the width of the smoothing line in the response plot.
-#' @param lineColor the color of the smoothing line in the response plot.
+#' @param pointStyle a list with style parameters for the points in the response plot (possible entries
+#'      are \code{color}, \code{size}, \code{alpha}, and \code{shape})
+#' @param lineStyle  list with style parameters for the smoothing lines in the response plot (possible entries
+#'      are \code{color}, \code{width}, and \code{linetype})
+#' @param seBandStyle a list with style parameters (\code{color} and \code{alpha}) for the confidence band (if \code{se} is \code{TRUE})
 #' @param stack how the facets are laid out in the response plot. \code{"horizontal"} for side by side and \code{"vertical"}
 #'      for on top of each other.
 #' @param ... futher arguments to the model diagnostic plot method (see \code{\link[robustbase]{plot.lmrob}} for details).
@@ -42,10 +45,12 @@
 #' plot(compModel, type = "model") # for the model diagnostic plots
 #' }
 plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95,
-    theme = ggplot2::theme_bw(), pointSize = ggplot2::rel(1), lineWidth = ggplot2::rel(1), lineColor = "grey20",
+    scale = c("percent", "ilr"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19),
+    lineStyle = list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"), seBandStyle = list(color = "gray80", alpha = 0.5),
     stack = c("horizontal", "vertical"), ...) {
     type <- match.arg(type);
     stack <- match.arg(stack);
+    scale <- match.arg(scale);
 
     if(type == "model") {
         plot(x$models[[1]], ...);
@@ -55,24 +60,35 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
         y <- unname(model.response(model.frame(x$models[[1]]), "numeric"));
         compParts <- lapply(x$models, function(m) {
             trX <- as.matrix(model.frame(model.frame(m)[ , -1L, drop = FALSE]));
-            return(isomLRinv(trX, perc = TRUE)[ , 1L, drop = TRUE]);
+            if(scale == "percent") {
+                return(isomLRinv(trX, perc = TRUE)[ , 1L, drop = TRUE]);
+            }
+            return(trX[ , 1L]);
         });
+
+        pointStyle <- c(pointStyle, list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19));
+        lineStyle <- c(lineStyle, list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"))
+        seBandStyle <- c(seBandStyle, list(color = "gray80", alpha = 0.5));
 
         X <- data.frame(y = y, value = do.call(c, compParts),
             part = factor(rep.int(names(x$models), rep.int(length(y), length(x$models))), names(x$models)));
 
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
-            ggplot2::geom_point(size = pointSize) +
-            ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, se = se, level = conf.level,
-                size = lineWidth, color = lineColor) +
+            ggplot2::geom_point(size = pointStyle$size, color = pointStyle$color, alpha = pointStyle$alpha, shape = pointStyle$shape) +
+            ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, transform = (scale == "percent"),
+                se = se, level = conf.level,
+                size = lineStyle$width, color = lineStyle$color, fill = seBandStyle$color, alpha = seBandStyle$alpha) +
             ggplot2::ylab(respVar) +
-            ggplot2::scale_x_continuous(labels = scales::percent) +
             ggplot2::xlab("Share") +
             theme +
             switch(stack,
                 vertical = ggplot2::facet_grid(part ~ ., scales = "fixed"),
                 ggplot2::facet_grid(. ~ part, scales = "fixed"));
 
+        if(scale == "percent") {
+            p <- p + ggplot2::scale_x_continuous(labels = scales::percent);
+        }
+        
         return(p);
     }
 }
@@ -88,15 +104,14 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' @param conf.type the confidence interval type, see \code{\link[boot]{boot.ci}} for details.
 #' @param kernel the kernel used for density estimation, see \code{\link[stats]{density}} for details.
 #' @param adjust see \code{\link[stats]{density}} for details.
+#' @param which which parameters to plot
 #' @param theme the ggplot2 theme to use for the plot.
-#' @param confColor the color of the confidence area beneath the density estimation.
-#' @param confAlpha the transparency level between 0 (completely transparent) and 1 (completely opaque)
-#'      of the confidence area
-#' @param estLineWidth the width of the line that is placed at the original parameter estimate.
-#' @param estLineStyle the style of the line that is placed at the original parameter estimate.
-#' @param estLineColor the color of the line that is placed at the original parameter estimate.
-#' @param densLineColor the color of the density estimate.
-#' @param densLineWidth the width of the density estimate.
+#' @param confStyle a list with style parameters for the confidence region below the density estimate (possible entries
+#'      are \code{color}, and \code{alpha})
+#' @param estLineStyle a list with style parameters for the line at the original parameter estimate (possible entries
+#'      are \code{color}, \code{width}, \code{alpha}, and \code{linetype})
+#' @param densityStyle a list with style parameters for the line of the density estimate (possible entries
+#'      are \code{color}, \code{width}, \code{alpha}, and \code{linetype})
 #' @param ... ignored
 #'
 #' @import ggplot2
@@ -104,23 +119,38 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' @seealso \code{\link[=confint.bccomplmrob]{confint}} to get the numerical values for the confidence intervals
 #' @export
 plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", kernel = "gaussian", adjust = 1,
-    theme = ggplot2::theme_bw(), confColor = "#56B4E9", confAlpha = 0.4, estLineWidth = rel(1), estLineStyle = "dashed",
-    estLineColor = "black", densLineColor = "black", densLineWidth = ggplot2::rel(0.5), ...) {
+    which = "all", theme = ggplot2::theme_bw(), confStyle = list(color = "#56B4E9", alpha = 0.4),
+    estLineStyle = list(color = "black", width = ggplot2::rel(1), alpha = 1, linetype = "dashed"),
+    densityStyle = list(color = "black", width = ggplot2::rel(0.5), alpha = 1, linetype = "solid"), ...) {
+
+    allCoefNames <- names(coef(x$model));
+    
+    if(length(which) == 1 && which == "all") {
+        which <- seq_along(allCoefNames);
+    } else if(is.character(which)) {
+        which <- na.omit(match(which, allCoefNames));
+    }
+
     replicates <- list();
     if(class(x$bootres) == "boot") {
-        nc <- ncol(x$bootres$t);
-        replicates <- split(x$bootres$t, rep.int(seq_len(nc), rep.int(nrow(x$bootres$t), nc)));
-        names(replicates) <- names(x$model$coefficients);
+        tsub <- x$bootres$t[ , which, drop = FALSE];
+        nc <- ncol(tsub);
+        replicates <- split(tsub, rep.int(seq_len(nc), rep.int(nrow(tsub), nc)));
+        names(replicates) <- allCoefNames[which];
     } else {
-        replicates <- lapply(x$bootres, function(bo) {
+        replicates <- lapply(x$bootres[which], function(bo) {
             bo$t[ , 1, drop = TRUE]
         });
     }
 
+    confStyle <- c(confStyle, list(color = "#56B4E9", alpha = 0.4));
+    estLineStyle <- c(estLineStyle, list(color = "black", width = ggplot2::rel(1), alpha = 1, linetype = "dashed"));
+    densityStyle <- c(densityStyle, list(color = "black", width = ggplot2::rel(0.5), alpha = 1, linetype = "solid"));
+    
     replicatesLong <- na.omit(data.frame(x = do.call(c, replicates),
         coef = rep.int(names(replicates), sapply(replicates, length))));
 
-    ci <- confint(x, level = conf.level, type = conf.type);
+    ci <- confint(x, level = conf.level, type = conf.type)[which, , drop = FALSE];
     ci <- split(ci, rep.int(seq_len(nrow(ci)), ncol(ci)));
 
     replicatesDE <- mapply(function(t, ci) {
@@ -131,16 +161,17 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     replicatesDens <- do.call(rbind, replicatesDE);
     replicatesDens$coef <- factor(rep.int(names(replicatesDE), times = sapply(replicatesDE, nrow)), levels = names(replicatesDE));
 
-    trueCoefs <- data.frame(coef = names(x$model$coefficients), x = unname(x$model$coefficients));
+    trueCoefs <- data.frame(coef = names(x$model$coefficients[which]), x = unname(x$model$coefficients[which]),
+        y = c(by(replicatesDens, replicatesDens$coef, function(x) { return(max(x$y)) })));
 
     p <- ggplot2::ggplot(replicatesDens, aes(x = x)) +
-        ggplot2::geom_area(mapping = aes(y = y), fill = confColor, alpha = confAlpha) +
+        ggplot2::geom_area(mapping = aes(y = y), fill = confStyle$color, alpha = confStyle$alpha) +
         ggplot2::stat_density(data = replicatesLong, mapping = aes(ymax = ..density..), geom = "line",
             kernel = kernel, adjust = adjust,
-            color = densLineColor, size = densLineWidth) +
-        ggplot2::geom_vline(data = trueCoefs, aes(xintercept = x), linetype = estLineStyle,
-            size = estLineWidth, color = estLineColor) +
-        ggplot2::facet_wrap(~ coef, scales = "free") +
+            color = densityStyle$color, size = densityStyle$width, alpha = densityStyle$alpha,
+            linetype = densityStyle$linetype) +
+        ggplot2::geom_segment(data = trueCoefs, aes(x = x, xend = x, y = 0, yend = 1.02 * y), linetype = estLineStyle$linetype,
+            size = estLineStyle$width, color = estLineStyle$color, alpha = estLineStyle$alpha) +
         ggplot2::scale_y_continuous(expand = c(0, 0)) +
         ggplot2::ggtitle(sprintf("Distribution of %d bootstrap estimates with %s confidence interval", x$R,
             format.perc(conf.level, 2))) +
@@ -152,13 +183,18 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
             axis.ticks.y = ggplot2::element_blank()
         );
 
+    if(nlevels(replicatesDens$coef) > 1) {
+        p <- p +  ggplot2::facet_wrap(~ coef, scales = "free");
+    }
+    
     return(p);
 }
 
-complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model) {
+complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model, transform = FALSE) {
     part <- names(complmrob.model$models)[as.integer(data$PANEL[1])]
 
     x <- complmrob.model$models[[part]]
+    x$transform = transform;
     x$part <- part;
     class(x) <- "complmrob.part";
     return(x)
@@ -189,7 +225,12 @@ predictdf.complmrob.part <- function(model, xseq, se, level) {
     if(attr(model$terms, "intercept") == 1) {
         origdata <- origdata[ , -1, drop = FALSE];
     }
-    suppressWarnings(preddata <- data.frame(part = pretty(model$x[ , partColumn, drop = TRUE], length(xseq)), colMeans(origdata)));
+
+    if(model$transform) {
+        suppressWarnings(preddata <- data.frame(part = pretty(model$x[ , partColumn, drop = TRUE], length(xseq)), colMeans(origdata)));
+    } else {
+        suppressWarnings(preddata <- data.frame(part = xseq, colMeans(origdata)));
+    }
 
     colnames(preddata)[1] <- model$part;
     colnames(preddata)[-1] <- colnames(origdata);
@@ -202,7 +243,10 @@ predictdf.complmrob.part <- function(model, xseq, se, level) {
         pred <- data.frame(y = pred);
     }
 
-    Zinv <- isomLRinv(as.matrix(preddata));
-
-    return(data.frame(x = Zinv[ , 1], pred))
+    if(model$transform) {
+        Zinv <- isomLRinv(as.matrix(preddata));
+        return(data.frame(x = Zinv[ , 1], pred))
+    } else {
+        return(data.frame(x = xseq, pred))
+    }
 }
