@@ -22,7 +22,9 @@
 #' @param scale should the x-axis in the response plot be in percentage or in the ILR-transformed scale?
 #' @param theme the ggplot2 theme to use for the response plot.
 #' @param pointStyle a list with style parameters for the points in the response plot (possible entries
-#'      are \code{color}, \code{size}, \code{alpha}, and \code{shape})
+#'      are \code{color}, \code{size}, \code{alpha}, and \code{shape}). If \code{color} is a vector
+#'      of length equal to the number of observations in the model, the points will be colored according
+#'      to this vector.
 #' @param lineStyle  list with style parameters for the smoothing lines in the response plot (possible entries
 #'      are \code{color}, \code{width}, and \code{linetype})
 #' @param seBandStyle a list with style parameters (\code{color} and \code{alpha}) for the confidence band (if \code{se} is \code{TRUE})
@@ -73,8 +75,17 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
         X <- data.frame(y = y, value = do.call(c, compParts),
             part = factor(rep.int(names(x$models), rep.int(length(y), length(x$models))), names(x$models)));
 
+        gp <- NULL;
+    
+        if(length(pointStyle$color) == length(y)) {
+            X$color <- rep.int(pointStyle$color, length(x$models));
+            gp <- ggplot2::geom_point(mapping = aes(color = color), size = pointStyle$size, alpha = pointStyle$alpha, shape = pointStyle$shape);
+        } else {
+            gp <- ggplot2::geom_point(mapping = pointMapping, size = pointStyle$size, color = pointStyle$color, alpha = pointStyle$alpha, shape = pointStyle$shape);
+        }
+
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
-            ggplot2::geom_point(size = pointStyle$size, color = pointStyle$color, alpha = pointStyle$alpha, shape = pointStyle$shape) +
+            gp +
             ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, transform = (scale == "percent"),
                 se = se, level = conf.level,
                 size = lineStyle$width, color = lineStyle$color, fill = seBandStyle$color, alpha = seBandStyle$alpha) +
