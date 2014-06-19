@@ -6,10 +6,9 @@
 \method{plot}{complmrob}(x, y = NULL, type = c("response", "model"),
   se = TRUE, conf.level = 0.95, scale = c("percent", "ilr"),
   theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size =
-  ggplot2::rel(1), alpha = 1, shape = "solid"), lineStyle = list(color =
-  "grey20", width = ggplot2::rel(1), linetype = "solid"),
-  seBandStyle = list(color = "gray80", alpha = 0.5), stack = c("horizontal",
-  "vertical"), ...)
+  ggplot2::rel(1), alpha = 1, shape = 19), lineStyle = list(color = "grey20",
+  width = ggplot2::rel(1), linetype = "solid"), seBandStyle = list(color =
+  "gray80", alpha = 0.5), stack = c("horizontal", "vertical"), ...)
 }
 \arguments{
 \item{x}{the object returned by \code{\link{complmrob}}.}
@@ -30,7 +29,9 @@ the level of the confidence interval.}
 \item{theme}{the ggplot2 theme to use for the response plot.}
 
 \item{pointStyle}{a list with style parameters for the points in the response plot (possible entries
-are \code{color}, \code{size}, \code{alpha}, and \code{shape})}
+are \code{color}, \code{size}, \code{alpha}, and \code{shape}). If \code{color} is a vector
+of length equal to the number of observations in the model, the points will be colored according
+to this vector.}
 
 \item{lineStyle}{list with style parameters for the smoothing lines in the response plot (possible entries
 are \code{color}, \code{width}, and \code{linetype})}
