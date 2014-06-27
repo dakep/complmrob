@@ -81,7 +81,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
             X$color <- rep.int(pointStyle$color, length(x$models));
             gp <- ggplot2::geom_point(mapping = aes(color = color), size = pointStyle$size, alpha = pointStyle$alpha, shape = pointStyle$shape);
         } else {
-            gp <- ggplot2::geom_point(mapping = pointMapping, size = pointStyle$size, color = pointStyle$color, alpha = pointStyle$alpha, shape = pointStyle$shape);
+            gp <- ggplot2::geom_point(size = pointStyle$size, color = pointStyle$color, alpha = pointStyle$alpha, shape = pointStyle$shape);
         }
 
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
