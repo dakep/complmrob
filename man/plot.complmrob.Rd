@@ -29,8 +29,8 @@ the level of the confidence interval.}
 \item{theme}{the ggplot2 theme to use for the response plot.}
 
 \item{pointStyle}{a list with style parameters for the points in the response plot (possible entries
-are \code{color}, \code{size}, \code{alpha}, and \code{shape}). If \code{color} is a vector
-of length equal to the number of observations in the model, the points will be colored according
+are \code{color}, \code{size}, \code{alpha}, and \code{shape}). If \code{color} and/or \code{shape} is a vector
+of length equal to the number of observations in the model, the points will be colored/shaped according
 to this vector.}
 
 \item{lineStyle}{list with style parameters for the smoothing lines in the response plot (possible entries
