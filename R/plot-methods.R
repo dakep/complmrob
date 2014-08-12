@@ -22,8 +22,8 @@
 #' @param scale should the x-axis in the response plot be in percentage or in the ILR-transformed scale?
 #' @param theme the ggplot2 theme to use for the response plot.
 #' @param pointStyle a list with style parameters for the points in the response plot (possible entries
-#'      are \code{color}, \code{size}, \code{alpha}, and \code{shape}). If \code{color} is a vector
-#'      of length equal to the number of observations in the model, the points will be colored according
+#'      are \code{color}, \code{size}, \code{alpha}, and \code{shape}). If \code{color} and/or \code{shape} is a vector
+#'      of length equal to the number of observations in the model, the points will be colored/shaped according
 #'      to this vector.
 #' @param lineStyle  list with style parameters for the smoothing lines in the response plot (possible entries
 #'      are \code{color}, \code{width}, and \code{linetype})
@@ -75,17 +75,38 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
         X <- data.frame(y = y, value = do.call(c, compParts),
             part = factor(rep.int(names(x$models), rep.int(length(y), length(x$models))), names(x$models)));
 
-        gp <- NULL;
-    
+        pointMapping <- list();
+        shapeAndColorIdent <- identical(pointStyle$shape, pointStyle$color);
+
         if(length(pointStyle$color) == length(y)) {
             X$color <- rep.int(pointStyle$color, length(x$models));
-            gp <- ggplot2::geom_point(mapping = aes(color = color), size = pointStyle$size, alpha = pointStyle$alpha, shape = pointStyle$shape);
-        } else {
-            gp <- ggplot2::geom_point(size = pointStyle$size, color = pointStyle$color, alpha = pointStyle$alpha, shape = pointStyle$shape);
+            pointMapping$color <- pointMapping$fill <- quote(color);
+
+            # Overriding has to be done twice as the list actually has two elements with the same name
+            # (as with the above assignment the old item is just obfuscated by the new one)
+            pointStyle$color <- NULL;
+            pointStyle$color <- NULL;
         }
 
+        if(length(pointStyle$shape) == length(y)) {
+            if(shapeAndColorIdent) {
+                pointMapping$shape <- quote(color);
+            } else {
+                X$shape <- rep.int(pointStyle$shape, length(x$models));
+                pointMapping$shape <- quote(shape);
+            }
+
+            # Overriding has to be done twice as the list actually has two elements with the same name
+            # (as with the above assignment the old item is just obfuscated by the new one)
+            pointStyle$shape <- NULL;
+            pointStyle$shape <- NULL;
+        }
+
+        pointStyle$mapping = do.call(ggplot2::aes, pointMapping);
+
+
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
-            gp +
+            do.call(ggplot2::geom_point, pointStyle, quote = TRUE) +
             ggplot2::stat_smooth(method = complmrob.wrapper, complmrob.model = x, transform = (scale == "percent"),
                 se = se, level = conf.level,
                 size = lineStyle$width, color = lineStyle$color, fill = seBandStyle$color, alpha = seBandStyle$alpha) +
@@ -99,7 +120,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
         if(scale == "percent") {
             p <- p + ggplot2::scale_x_continuous(labels = scales::percent);
         }
-        
+
         return(p);
     }
 }
@@ -135,7 +156,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     densityStyle = list(color = "black", width = ggplot2::rel(0.5), alpha = 1, linetype = "solid"), ...) {
 
     allCoefNames <- names(coef(x$model));
-    
+
     if(length(which) == 1 && which == "all") {
         which <- seq_along(allCoefNames);
     } else if(is.character(which)) {
@@ -157,7 +178,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     confStyle <- c(confStyle, list(color = "#56B4E9", alpha = 0.4));
     estLineStyle <- c(estLineStyle, list(color = "black", width = ggplot2::rel(1), alpha = 1, linetype = "dashed"));
     densityStyle <- c(densityStyle, list(color = "black", width = ggplot2::rel(0.5), alpha = 1, linetype = "solid"));
-    
+
     replicatesLong <- na.omit(data.frame(x = do.call(c, replicates),
         coef = rep.int(names(replicates), sapply(replicates, length))));
 
@@ -197,7 +218,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     if(nlevels(replicatesDens$coef) > 1) {
         p <- p +  ggplot2::facet_wrap(~ coef, scales = "free");
     }
-    
+
     return(p);
 }
 
