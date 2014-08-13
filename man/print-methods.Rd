@@ -5,9 +5,9 @@
 \alias{print.complmrob}
 \title{Print the object}
 \usage{
-print.complmrob(x, conf.level = 0.95, ...)
+\method{print}{complmrob}(x, conf.level = 0.95, ...)
 
-print.bootcoefs(x, conf.level = 0.95, conf.type = "perc", ...)
+\method{print}{bootcoefs}(x, conf.level = 0.95, conf.type = "perc", ...)
 }
 \arguments{
 \item{x}{the object to be printed.}
