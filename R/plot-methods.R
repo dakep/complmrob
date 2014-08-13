@@ -40,7 +40,8 @@
 #' \donttest{
 #' library(robCompositions)
 #' data(expendituresEU)
-#' data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+#' data <- data.frame(
+#'      y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
 #'      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
 #'
 #' compModel <- complmrob(y ~ ., data = data)
@@ -155,7 +156,8 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' \donttest{
 #' library(robCompositions)
 #' data(expendituresEU)
-#' data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+#' data <- data.frame(
+#'      y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
 #'      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
 #'
 #' compModel <- complmrob(y ~ ., data = data)
