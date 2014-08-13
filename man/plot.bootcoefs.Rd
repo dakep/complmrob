@@ -46,7 +46,8 @@ Plot the distribution of the bootstrap estimates and the confidence intervals fo
 \donttest{
 library(robCompositions)
 data(expendituresEU)
-data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+data <- data.frame(
+     y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
 
 compModel <- complmrob(y ~ ., data = data)
