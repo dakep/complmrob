@@ -149,6 +149,12 @@ summary.bclmrob <- function(object, conf.level = 0.95, conf.type = "perc", ...) 
     return(ret);
 }
 
+#' Print the summary information
+#' 
+#' @param x the summary object.
+#' @param digits the number of digits for the reported figures
+#' @param signif.stars should stars be displayed to show the significance of certain figures
+#' @param ... further arguments currently not used
 #' @export
 print.summary.complmrob <- function(x, digits = max(3, getOption("digits") - 3), signif.stars = getOption("show.signif.stars"), ...) {
     cat("Robust linear regression with compositional covariates\n");
