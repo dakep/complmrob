@@ -8,14 +8,20 @@
 #' @param conf.type the type of the printed confidence interval.
 #' @param ... ignored.
 #' 
-#' @seealso \code{\link{summary.complmrob}}
-#' @describeIn print for robust linear regression models with compositional data
+#' @seealso \code{\link{summary-methods}}
+#' @name print-methods
+NULL
+
+
+# @rdname print-methods print for robust linear regression models with compositional data
+#' @rdname print-methods
 #' @export
 print.complmrob <- function(x, conf.level = 0.95, ...) {
     print(summary(x, conf.level = conf.level))
 }
 
-#' @describeIn print for bootstrapped robust linear regression models with or without compositional data
+# @describeIn print-methods print for bootstrapped robust linear regression models with or without compositional data
+#' @rdname print-methods
 #' @export
 print.bootcoefs <- function(x, conf.level = 0.95, conf.type = "perc", ...) {
     print(summary(x, conf.level = conf.level, conf.type = conf.type))

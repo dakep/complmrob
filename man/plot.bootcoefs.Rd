@@ -42,6 +42,18 @@ are \code{color}, \code{width}, \code{alpha}, and \code{linetype})}
 \description{
 Plot the distribution of the bootstrap estimates and the confidence intervals for the estimates
 }
+\examples{
+\donttest{
+library(robCompositions)
+data(expendituresEU)
+data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+     expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
+
+compModel <- complmrob(y ~ ., data = data)
+bc <- bootcoefs(compModel, R = 500) # this can take some time
+plot(bc) # for the model diagnostic plots
+}
+}
 \seealso{
 \code{\link[=confint.bccomplmrob]{confint}} to get the numerical values for the confidence intervals
 }
