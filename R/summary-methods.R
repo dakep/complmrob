@@ -10,8 +10,12 @@
 #' meaning of this parameter).
 #' @param ... ignored.
 #' 
+#' @name summary-methods
+NULL
+
+# @describeIn summary for robust linear regression models with compositional data
 #' @import robustbase
-#' @describeIn summary for robust linear regression models with compositional data
+#' @rdname summary-methods
 #' @export
 summary.complmrob <- function(object, conf.level = 0.95, ...) {
     ret <- list(
@@ -71,8 +75,9 @@ summary.complmrob <- function(object, conf.level = 0.95, ...) {
     return(ret);
 }
 
-#' @describeIn summary for bootstrapped robust linear regression models with compositional data
+# @describeIn summary for bootstrapped robust linear regression models with compositional data
 #' @import robustbase
+#' @rdname summary-methods
 #' @export
 summary.bccomplmrob <- function(object, conf.level = 0.95, conf.type = "perc", ...) {
     ret <- list(
@@ -105,9 +110,10 @@ summary.bccomplmrob <- function(object, conf.level = 0.95, conf.type = "perc", .
     return(ret);
 }
 
-#' @describeIn summary for bootstrapped robust linear regression models
+# @describeIn summary for bootstrapped robust linear regression models
 #' @import robustbase
 #' @importFrom boot boot.ci
+#' @rdname summary-methods
 #' @export
 summary.bclmrob <- function(object, conf.level = 0.95, conf.type = "perc", ...) {
     ret <- list(

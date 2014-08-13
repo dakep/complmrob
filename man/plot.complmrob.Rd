@@ -4,7 +4,7 @@
 \title{Diagnostic plots for the robust regression model with compositional covariats}
 \usage{
 \method{plot}{complmrob}(x, y = NULL, type = c("response", "model"),
-  se = TRUE, conf.level = 0.95, scale = c("percent", "ilr"),
+  se = TRUE, conf.level = 0.95, scale = c("ilr", "percent"),
   theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size =
   ggplot2::rel(1), alpha = 1, shape = 19), lineStyle = list(color = "grey20",
   width = ggplot2::rel(1), linetype = "solid"), seBandStyle = list(color =
@@ -60,7 +60,8 @@ orthonormal basis.
 \donttest{
 library(robCompositions)
 data(expendituresEU)
-data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
+data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+     expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
 
 compModel <- complmrob(y ~ ., data = data)
 plot(compModel) # for the response plot
