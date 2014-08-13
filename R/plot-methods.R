@@ -1,3 +1,5 @@
+globalVariables(c("..density..", "value"));
+
 #' Diagnostic plots for the robust regression model with compositional covariats
 #'
 #' Plot the response or the model diagnostic plots for robust linear regression model with compositional
