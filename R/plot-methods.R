@@ -40,14 +40,15 @@
 #' \donttest{
 #' library(robCompositions)
 #' data(expendituresEU)
-#' data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
+#' data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+#'      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
 #'
 #' compModel <- complmrob(y ~ ., data = data)
 #' plot(compModel) # for the response plot
 #' plot(compModel, type = "model") # for the model diagnostic plots
 #' }
 plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95,
-    scale = c("percent", "ilr"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19),
+    scale = c("ilr", "percent"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19),
     lineStyle = list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"), seBandStyle = list(color = "gray80", alpha = 0.5),
     stack = c("horizontal", "vertical"), ...) {
     type <- match.arg(type);
@@ -150,6 +151,17 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' @method plot bootcoefs
 #' @seealso \code{\link[=confint.bccomplmrob]{confint}} to get the numerical values for the confidence intervals
 #' @export
+#' @examples
+#' \donttest{
+#' library(robCompositions)
+#' data(expendituresEU)
+#' data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+#'      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
+#'
+#' compModel <- complmrob(y ~ ., data = data)
+#' bc <- bootcoefs(compModel, R = 500) # this can take some time
+#' plot(bc) # for the model diagnostic plots
+#' }
 plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", kernel = "gaussian", adjust = 1,
     which = "all", theme = ggplot2::theme_bw(), confStyle = list(color = "#56B4E9", alpha = 0.4),
     estLineStyle = list(color = "black", width = ggplot2::rel(1), alpha = 1, linetype = "dashed"),
@@ -258,10 +270,15 @@ predictdf.complmrob.part <- function(model, xseq, se, level) {
         origdata <- origdata[ , -1, drop = FALSE];
     }
 
+    predDataMatrix <- matrix(rep(colMeans(origdata), each = length(xseq)), nrow = length(xseq));
+    
     if(model$transform) {
-        suppressWarnings(preddata <- data.frame(part = pretty(model$x[ , partColumn, drop = TRUE], length(xseq)), colMeans(origdata)));
+        ra <- range(model$x[ , partColumn, drop = TRUE]);
+        ra <- diff(ra) * c(-0.05, 0.05) + ra; # Expand limits by 5 percent
+        suppressWarnings(preddata <- data.frame(part = seq.int(from = ra[1], to = ra[2], length.out = length(xseq)),
+            predDataMatrix));
     } else {
-        suppressWarnings(preddata <- data.frame(part = xseq, colMeans(origdata)));
+        suppressWarnings(preddata <- data.frame(part = xseq, predDataMatrix));
     }
 
     colnames(preddata)[1] <- model$part;

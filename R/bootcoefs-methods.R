@@ -19,6 +19,17 @@
 #'      \code{\link{summary}} and \code{\link[=plot.bootcoefs]{plot}} methods are available
 #' @export
 #' @references M. Salibian-Barrera, S. Aelst, and G. Willems. Fast and robust bootstrap. Statistical Methods and Applications, 17(1):41-71, 2008.
+#' @examples
+#' \donttest{
+#' library(robCompositions)
+#' data(expendituresEU)
+#' data <- data.frame(y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
+#'      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
+#'
+#' compModel <- complmrob(y ~ ., data = data)
+#' bc <- bootcoefs(compModel, R = 500) # this can take some time
+#' summary(bc)
+#' }
 bootcoefs <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
     UseMethod("bootcoefs", object);
 }
