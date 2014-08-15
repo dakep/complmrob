@@ -102,15 +102,34 @@ bootStatFastControl <- function(model) {
     # reference code from Matias Salibian-Barrera
     d <- (sfinv %*% crossprod(X, wp2 * model$residuals)) * vfactorinv / (a * model$scale);
 
+    ## The .lm.fit method is only available in R 3.1.0 upwards,
+    ## so write a wrapper that can be used in the bootStatFast method
+    ## that doesn't do any checks
+
+    lmwfit <- function(x, y, weights) {};
+
+    if(getRversion() < numeric_version("3.1.0")) {
+        lmwfit <- function(x, y, weights) {
+            return(lm.wfit(x, y, w = weights)$coefficients);
+        };
+    } else {
+        # the fast version w/o any checks is available
+        w <- sqrt(w);
+        lmwfit <- function(x, y, weights) {
+            return(.lm.fit(x * weights, y * weights)$coefficients);
+        };
+    }
+
     ret <- list(
         M = M,
         d = d,
         coefficients = coef(model),
         v = v,
-        wsqrt = sqrt(w),
+        wts = w,
         scale = model$scale,
         residualsS = model$init.S$residuals,
-        terms = terms(model)
+        terms = terms(model),
+        lmwfit = lmwfit
     )
 
     class(ret) <- "bootStatFastControl";
@@ -126,9 +145,9 @@ bootStatFast <- function(origData, inds, control, coefind) {
     X <- model.matrix(control$terms, mf);
     y <- model.response(mf, "numeric");
 
-    wts <- control$wsqrt[inds];
+    wts <- control$wts[inds];
 
-    bsCoef <- .lm.fit(X * wts, y * wts)$coefficients;
+    bsCoef <- control$lmwfit(X, y, wts);
     bsScale <- sum(control$v[inds]);
 
     bootCoefs <- control$coefficients + control$M %*% (bsCoef - control$coefficients) + control$d * (bsScale - control$scale);

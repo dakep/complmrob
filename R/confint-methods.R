@@ -1,15 +1,15 @@
 #' Calculate confidence intervals
-#' 
+#'
 #' Calculate confidence intervals for bootstrapped robust linear regression estimates with or without
 #' compositional data
-#' 
+#'
 #' @param object an object returned from \code{\link{bootcoefs}}.
 #' @param parm a specification of which parameters are to be given confidence intervals, either a vector
 #'      of numbers or a vector of names. If missing, all parameters are considered.
 #' @param level the confidence level required.
 #' @param type the type of interval required (see the type argument of \code{\link{boot.ci}}).
 #' @param ... currently ignored.
-#' 
+#'
 #' @importFrom boot boot.ci
 #' @import robustbase
 #' @export
@@ -19,22 +19,22 @@
 #' library(robCompositions)
 #' data(expendituresEU)
 #' data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
-#' 
+#'
 #' compModel <- complmrob(y ~ ., data = data)
 #' compBoot <- bootcoefs(compModel, R = 999) # this takes some time
 #' confint(compBoot, level = 0.95, type = "perc")
 #' }
-#' 
+#'
 #' ### For normal robust linear regression models ###
 #' library(robustbase)
 #' data(aircraft)
-#' 
+#'
 #' mod <- lmrob(Y ~ ., data = aircraft)
 #' bootEst <- bootcoefs(mod, R = 999) # this can take some time
 #' confint(bootEst, level = 0.95, type = "perc")
 confint.bccomplmrob <- function(object, parm, level = 0.95, type = c("bca", "perc", "norm", "basic", "stud"), ...) {
     type = match.arg(type);
-    
+
     outtype <- switch(type,
         bca = "bca",
         perc = "percent",
@@ -57,14 +57,14 @@ confint.bccomplmrob <- function(object, parm, level = 0.95, type = c("bca", "per
     }
 }
 
-#' 
+#'
 #' @importFrom boot boot.ci
 #' @import robustbase
 #' @describeIn confint for bootstrapped estimates of robust linear regression models
 #' @export
 confint.bclmrob <- function(object, parm, level = 0.95, type = c("bca", "perc", "norm", "basic", "stud"), ...) {
     type = match.arg(type);
-    
+
     outtype <- switch(type,
         bca = "bca",
         perc = "percent",
@@ -77,15 +77,15 @@ confint.bclmrob <- function(object, parm, level = 0.95, type = c("bca", "perc", 
     ci <- lapply(seq_len(ncol(object$bootres$t)), function(i) {
         boot.ci(object$bootres, conf = level, type = type, index = i)[[outtype]][1, 4:5, drop = TRUE]
     });
-    
+
     ci <- do.call(rbind, ci);
     colnames(ci) <- format.perc((1 + c(-1, 1) * level) / 2, 3);
-    
+
     return(ci);
 }
 
 #' Simple function (just copied from the stats package) to format percentages
-#' 
+#'
 #' @param probs the percentages
 #' @param digits the number of digits
 format.perc <- function (probs, digits) {
