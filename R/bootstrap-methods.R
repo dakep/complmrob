@@ -107,7 +107,7 @@ bootStatFastControl <- function(model) {
     ## that doesn't do any checks
 
     lmwfit <- function(x, y, weights) {};
-    
+
     if(getRversion() < numeric_version("3.1.0")) {
         lmwfit <- function(x, y, weights) {
             return(lm.wfit(x, y, w = weights)$coefficients);
