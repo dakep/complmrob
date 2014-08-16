@@ -1,15 +1,15 @@
 #' Get summary information
-#' 
+#'
 #' List the estimates, standard errors, p-values and confidence intervals for the coefficients of
 #' robust linear regression models with compositional data as returned by \code{\link{complmrob}} or
 #' \code{\link{bootcoefs}}
-#' 
+#'
 #' @param object the object for which the summary information should be returned.
 #' @param conf.level the level of the returned confidence intervals.
 #' @param conf.type the type of the returned confidence interval (see \code{\link[boot]{boot.ci}} for the
 #' meaning of this parameter).
 #' @param ... ignored.
-#' 
+#'
 #' @name summary-methods
 NULL
 
@@ -27,12 +27,12 @@ summary.complmrob <- function(object, conf.level = 0.95, ...) {
         scale = NULL,
         type = "theoretical"
     );
-    
+
     intercSe <- sqrt(object$models[[1]]$cov[object$coefind, object$coefind]);
     intercTval <- object$models[[1]]$coefficients[1] / intercSe;
-    
+
     thParams <- list();
-    
+
     if(object$intercept == TRUE) {
         thParams <- list("(Intercept)" = c(
             se = intercSe,
@@ -40,7 +40,7 @@ summary.complmrob <- function(object, conf.level = 0.95, ...) {
             pval = 2 * pt(abs(intercTval), object$models[[1]]$df.residual, lower.tail = FALSE)
         ));
     }
-    
+
     thParams <- c(thParams, lapply(object$models, function(m) {
         se <- sqrt(m$cov[object$coefind, object$coefind]);
         tval <- m$coefficients[object$coefind] / se;
@@ -50,27 +50,27 @@ summary.complmrob <- function(object, conf.level = 0.95, ...) {
             pval = 2 * pt(abs(tval), m$df.residual, lower.tail = FALSE)
         ));
     }));
-    
+
     ret$stats <- as.data.frame(do.call(rbind, thParams))
     colnames(ret$stats) <- c("Std. Error", "t value", "Pr(>|t|)");
-    
+
     ret$ci <- list();
-    
+
     if(object$intercept == TRUE) {
         ret$ci <- list("(Intercept)" = confint(object$models[[1]], level = conf.level)[1L, ]);
     }
-    
+
     ret$ci <- c(ret$ci, lapply(object$models, function(m) {
         confint(m, level = conf.level)[object$coefind, ]
     }));
-    
+
     ret$ci <- do.call(rbind, ret$ci);
-    
+
     sm <- summary(object$models[[1]]);
     ret$r.squared <- sm$r.squared;
     ret$adj.r.squared <- sm$adj.r.squared;
     ret$scale = object$models[[1]]$scale;
-    
+
     class(ret) <- "summary.complmrob";
     return(ret);
 }
@@ -150,7 +150,7 @@ summary.bclmrob <- function(object, conf.level = 0.95, conf.type = "perc", ...) 
 }
 
 #' Print the summary information
-#' 
+#'
 #' @param x the summary object.
 #' @param digits the number of digits for the reported figures
 #' @param signif.stars should stars be displayed to show the significance of certain figures

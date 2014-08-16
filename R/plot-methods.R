@@ -275,7 +275,7 @@ predictdf.complmrob.part <- function(model, xseq, se, level) {
     }
 
     predDataMatrix <- matrix(rep(colMeans(origdata), each = length(xseq)), nrow = length(xseq));
-    
+
     if(model$transform) {
         ra <- range(model$x[ , partColumn, drop = TRUE]);
         ra <- diff(ra) * c(-0.05, 0.05) + ra; # Expand limits by 5 percent
