@@ -1,0 +1,9 @@
+2014-08-16  David Kepplinger <david.kepplinger@gmail.com>
+
+    * Release version 0.5.5
+    * In older R versions use lm.wfit instead of .lm.fit
+
+2014-08-13  David Kepplinger <david.kepplinger@gmail.com>
+
+    * Release 0.5.4
+    * Initial release
