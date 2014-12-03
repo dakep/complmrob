@@ -1,3 +1,8 @@
+2014-12-03  David Kepplinger <david.kepplinger@gmail.com>
+
+    * Release version 0.5.6
+    * Check on which platform we are and only spawn fork processes for bootstrapping on UNIX.
+
 2014-08-16  David Kepplinger <david.kepplinger@gmail.com>
 
     * Release version 0.5.5
