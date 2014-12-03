@@ -214,7 +214,11 @@ setupCluster <- function(ncpus, cl) {
     needToShutdownCluster <- FALSE;
     parallel <- "no";
     if(!is.null(ncpus) && is.null(cl)) {
-        cl <- parallel::makeForkCluster(nnodes = ncpus);
+        if (.Platform$OS.type == "unix") {
+            cl <- parallel::makeForkCluster(nnodes = ncpus);
+        } else {
+            cl <- parallel::makePSOCKcluster(names = ncpus);
+        }
         needToShutdownCluster <- TRUE;
     }
 
