@@ -15,22 +15,18 @@
 #' @export
 #' @describeIn confint for bootstrapped estimates of robust linear regression models for compositional data
 #' @examples
-#' \donttest{
-#' library(robCompositions)
-#' data(expendituresEU)
-#' data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
-#'
-#' compModel <- complmrob(y ~ ., data = data)
-#' compBoot <- bootcoefs(compModel, R = 999) # this takes some time
-#' confint(compBoot, level = 0.95, type = "perc")
-#' }
+#' data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
+#' mUSArr <- complmrob(lifeExp ~ ., data = data)
+#' bc <- bootcoefs(mUSArr, R = 200) # the number of bootstrap replicates should
+#'                                  # normally be higher!
+#' confint(bc, level = 0.95, type = "perc")
 #'
 #' ### For normal robust linear regression models ###
-#' library(robustbase)
+#' require(robustbase)
 #' data(aircraft)
 #'
 #' mod <- lmrob(Y ~ ., data = aircraft)
-#' bootEst <- bootcoefs(mod, R = 999) # this can take some time
+#' bootEst <- bootcoefs(mod, R = 200)
 #' confint(bootEst, level = 0.95, type = "perc")
 confint.bccomplmrob <- function(object, parm, level = 0.95, type = c("bca", "perc", "norm", "basic", "stud"), ...) {
     type = match.arg(type);
