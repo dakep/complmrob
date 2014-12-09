@@ -57,16 +57,9 @@ The model diagnostic plots are the same for all sub-models fit to the data trans
 orthonormal basis.
 }
 \examples{
-\donttest{
-library(robCompositions)
-data(expendituresEU)
-data <- data.frame(
-     y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
-     expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
-
-compModel <- complmrob(y ~ ., data = data)
-plot(compModel) # for the response plot
-plot(compModel, type = "model") # for the model diagnostic plots
-}
+data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
+mUSArr <- complmrob(lifeExp ~ ., data = data)
+plot(mUSArr)
+plot(mUSArr, type = "model") # for the model diagnostic plots
 }
 

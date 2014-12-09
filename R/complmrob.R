@@ -31,14 +31,10 @@
 #'      variables, Journal of Applied Statistics, DOI:10.1080/02664763.2011.644268
 #' @export
 #' @examples
-#' \donttest{
-#' library(robCompositions)
-#' data(expendituresEU)
-#' data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
+#' data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
+#' mUSArr <- complmrob(lifeExp ~ ., data = data)
+#' summary(mUSArr)
 #'
-#' compModel <- complmrob(y ~ ., data = data)
-#' summary(compModel)
-#' }
 complmrob <- function(formula, data) {
     #
     # Initialize auxiliary variables
