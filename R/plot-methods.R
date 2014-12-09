@@ -39,17 +39,10 @@ globalVariables(c("..density..", "value"));
 #' @method plot complmrob
 #' @export
 #' @examples
-#' \donttest{
-#' library(robCompositions)
-#' data(expendituresEU)
-#' data <- data.frame(
-#'      y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
-#'      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
-#'
-#' compModel <- complmrob(y ~ ., data = data)
-#' plot(compModel) # for the response plot
-#' plot(compModel, type = "model") # for the model diagnostic plots
-#' }
+#' data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
+#' mUSArr <- complmrob(lifeExp ~ ., data = data)
+#' plot(mUSArr)
+#' plot(mUSArr, type = "model") # for the model diagnostic plots
 plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE, conf.level = 0.95,
     scale = c("ilr", "percent"), theme = ggplot2::theme_bw(), pointStyle = list(color = "black", size = ggplot2::rel(1), alpha = 1, shape = 19),
     lineStyle = list(color = "grey20", width = ggplot2::rel(1), linetype = "solid"), seBandStyle = list(color = "gray80", alpha = 0.5),
@@ -155,17 +148,10 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 #' @seealso \code{\link[=confint.bccomplmrob]{confint}} to get the numerical values for the confidence intervals
 #' @export
 #' @examples
-#' \donttest{
-#' library(robCompositions)
-#' data(expendituresEU)
-#' data <- data.frame(
-#'      y = as.numeric(apply(expendituresEU[ , c("Food", "Alcohol", "Restaurants")], 1, sum)),
-#'      expendituresEU[ , c("Food", "Alcohol", "Restaurants")])
-#'
-#' compModel <- complmrob(y ~ ., data = data)
-#' bc <- bootcoefs(compModel, R = 500) # this can take some time
+#' data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
+#' mUSArr <- complmrob(lifeExp ~ ., data = data)
+#' bc <- bootcoefs(mUSArr, R = 200) # this can take some time
 #' plot(bc) # for the model diagnostic plots
-#' }
 plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", kernel = "gaussian", adjust = 1,
     which = "all", theme = ggplot2::theme_bw(), confStyle = list(color = "#56B4E9", alpha = 0.4),
     estLineStyle = list(color = "black", width = ggplot2::rel(1), alpha = 1, linetype = "dashed"),

@@ -37,14 +37,9 @@ the data has to be transformed according to each of these orthonormal basis and 
 has to be fit to every transformed data set.
 }
 \examples{
-\donttest{
-library(robCompositions)
-data(expendituresEU)
-data <- data.frame(y = as.numeric(apply(expendituresEU , 1, sum)), expendituresEU)
-
-compModel <- complmrob(y ~ ., data = data)
-summary(compModel)
-}
+data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
+mUSArr <- complmrob(lifeExp ~ ., data = data)
+summary(mUSArr)
 }
 \references{
 K. Hron, P. Filzmoser & K. Thompson (2012): Linear regression with compositional explanatory
