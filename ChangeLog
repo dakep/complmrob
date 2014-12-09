@@ -1,6 +1,6 @@
 2014-12-09  David Kepplinger <david.kepplinger@gmail.com>
 
-    * Release version 0.5.7
+    * Release version 0.5.8
     * Fix bug in isoLRinv when the original space was 2-dimensional
     * Update examples
 
