@@ -112,13 +112,22 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
 
 
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
-            do.call(ggplot2::geom_point, pointStyle, quote = TRUE) +
-            ggplot2::stat_smooth(method = complmrob.wrapper, se = se, level = conf.level,
+            do.call(ggplot2::geom_point, pointStyle, quote = TRUE)
+
+        if (utils::packageVersion("ggplot2") < "1.1.0") {
+            p <- p + ggplot2::stat_smooth(method = complmrob.wrapper, se = se, level = conf.level,
+                                 complmrob.model = x, transform = (scale == "percent"), # Method args
+                                 size = lineStyle$width, color = lineStyle$color,
+                                 fill = seBandStyle$color, alpha = seBandStyle$alpha)
+        } else {
+            p <- p + ggplot2::stat_smooth(method = complmrob.wrapper, se = se, level = conf.level,
                                  method.args = list(complmrob.model = x,
                                                     transform = (scale == "percent")),
                                  size = lineStyle$width, color = lineStyle$color,
-                                 fill = seBandStyle$color, alpha = seBandStyle$alpha) +
-            ggplot2::ylab(respVar) +
+                                 fill = seBandStyle$color, alpha = seBandStyle$alpha)
+        }
+
+        p <- p + ggplot2::ylab(respVar) +
             ggplot2::xlab("Share") +
             theme +
             switch(stack,
@@ -247,12 +256,12 @@ complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model, tr
 
 #' Predict values for a \code{complmrob.part} object
 #'
-#' This function is used by ggplot2 to predict the values for a \code{complmrob} model and should usally not
-#' be needed by the user.
+#' This function is used by ggplot2 to predict the values for a \code{complmrob} model and should
+#' usally not be needed by the user.
 #'
-#' The sole reason that this function is visible is because the \code{\link{ggplot2}} function
-#' \code{predictdf} is not exported and thus this function could not be used for \code{complmrob.part}
-#' objects if it was not exported.
+#' The sole reason that this function is visible is because the \code{\link[ggplot2]{ggplot}}
+#' function \code{predictdf} is not exported and thus this function could not be used for
+#' \code{complmrob.part} objects if it was not exported.
 #'
 #' @param model the complmrob.part model the prediction should be done for
 #' @param xseq the sequence of x values to predict for
