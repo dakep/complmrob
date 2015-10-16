@@ -114,7 +114,7 @@ plot.complmrob <- function(x, y = NULL, type = c("response", "model"), se = TRUE
         p <- ggplot2::ggplot(X, ggplot2::aes(x = value, y = y)) +
             do.call(ggplot2::geom_point, pointStyle, quote = TRUE)
 
-        if (utils::packageVersion("ggplot2") < "1.1.0") {
+        if (utils::packageVersion("ggplot2") < "1.0.1.9003") {
             p <- p + ggplot2::stat_smooth(method = complmrob.wrapper, se = se, level = conf.level,
                                  complmrob.model = x, transform = (scale == "percent"), # Method args
                                  size = lineStyle$width, color = lineStyle$color,
