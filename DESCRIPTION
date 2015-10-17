@@ -1,7 +1,7 @@
 Package: complmrob
 Type: Package
 Title: Robust Linear Regression with Compositional Data as Covariates
-Version: 0.5.9
+Version: 0.6.0
 Date: 2015-10-16
 Author: David Kepplinger <david.kepplinger@gmail.com>
 Maintainer: David Kepplinger <david.kepplinger@gmail.com>
