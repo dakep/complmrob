@@ -1,5 +1,6 @@
 2015-10-16  David Kepplinger <david.kepplinger@gmail.com>
 
+    * Release version 0.6.0
     * Make plot.complmrob compatible with new ggplot2 version (>1.1.0)
 
 2014-12-09  David Kepplinger <david.kepplinger@gmail.com>
