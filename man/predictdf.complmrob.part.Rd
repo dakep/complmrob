@@ -16,12 +16,12 @@ predictdf.complmrob.part(model, xseq, se, level)
 \item{level}{the level of the confidence interval (if any)}
 }
 \description{
-This function is used by ggplot2 to predict the values for a \code{complmrob} model and should usally not
-be needed by the user.
+This function is used by ggplot2 to predict the values for a \code{complmrob} model and should
+usally not be needed by the user.
 }
 \details{
-The sole reason that this function is visible is because the \code{\link[ggplot2]{ggplot}} function
-\code{predictdf} is not exported and thus this function could not be used for \code{complmrob.part}
-objects if it was not exported.
+The sole reason that this function is visible is because the \code{\link[ggplot2]{ggplot}}
+function \code{predictdf} is not exported and thus this function could not be used for
+\code{complmrob.part} objects if it was not exported.
 }
 
