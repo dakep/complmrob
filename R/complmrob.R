@@ -27,6 +27,10 @@
 #' @import robustbase
 #' @importFrom boot boot
 #' @import parallel
+#' @importFrom stats .lm.fit as.formula coef confint density fitted formula lm.wfit model.frame
+#' @importFrom stats model.matrix model.response na.omit predict printCoefmat pt
+#' @importFrom stats residuals sd terms update
+#'
 #' @references K. Hron, P. Filzmoser & K. Thompson (2012): Linear regression with compositional explanatory
 #'      variables, Journal of Applied Statistics, DOI:10.1080/02664763.2011.644268
 #' @export
