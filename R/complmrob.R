@@ -1,16 +1,17 @@
 #' MM-type estimators for linear regression on compositional data
 #'
 #' Uses the \code{\link[robustbase]{lmrob}} method for robust linear regression models to fit
-#' a linear regression models to compositional data.
+#' linear regression models to compositional data.
 #'
-#' The variables on the right-hand-side of the formula will be transformed with the isometric log-ratio
-#' transformation (\code{\link{isomLR}}) and then the robust linear regression model is applied to
+#' The variables on the right-hand-side of the formula are transformed with the isometric log-ratio
+#' transformation (\code{\link{isomLR}}) and a robust linear regression model is fit to
 #' those transformed variables. The orthonormal basis can be constructed in \code{p} different ways,
 #' where \code{p} is the number of variables on the RHS of the formula.
 #'
 #' To get an interpretable estimate of the regression coefficient for each part of the composition,
-#' the data has to be transformed according to each of these orthonormal basis and a regression model
-#' has to be fit to every transformed data set.
+#' the data is transformed separately for each part. To estimate the coefficient for the *k*-th
+#' part, the *k*-th part is used as the orthonormal basis in the transformation and a regression model
+#' is fit to this data.
 #'
 #' @param formula The formula for the regression model
 #' @param data The data.frame to use
@@ -20,7 +21,7 @@
 #'          \item{models}{the single regression models (one for each orthonormal basis)}
 #'          \item{npred}{the number of predictor variables}
 #'          \item{predictors}{the names of the predictor variables}
-#'          \item{coefind}{the index of the relevent coefficient in the single regression models}
+#'          \item{coefind}{the index of the relevant coefficient in the single regression models}
 #'          \item{call}{how the function was called}
 #'          \item{intercept}{if an intercept is included}
 #'      }
@@ -35,8 +36,9 @@
 #'      variables, Journal of Applied Statistics, DOI:10.1080/02664763.2011.644268
 #' @export
 #' @examples
-#' data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
-#' mUSArr <- complmrob(lifeExp ~ ., data = data)
+#' crimes <- data.frame(lifeExp = state.x77[, "Life Exp"],
+#'                      USArrests[ , c("Murder", "Assault", "Rape")])
+#' mUSArr <- complmrob(lifeExp ~ ., data = crimes)
 #' summary(mUSArr)
 #'
 complmrob <- function(formula, data) {
@@ -69,7 +71,8 @@ complmrob <- function(formula, data) {
         predictors = compPred,
         coefind = coefind,
         call = match.call(),
-        intercept = int
+        intercept = int,
+        formula = formula
     );
 
     class(ret) <- "complmrob";

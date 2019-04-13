@@ -157,10 +157,14 @@ summary.bclmrob <- function(object, conf.level = 0.95, conf.type = "perc", ...) 
 #' @param ... further arguments currently not used
 #' @export
 print.summary.complmrob <- function(x, digits = max(3, getOption("digits") - 3), signif.stars = getOption("show.signif.stars"), ...) {
-    cat("Robust linear regression with compositional covariates\n");
+    cat("Robust linear regression")
+    if (x$type != "bootlmrob") {
+        cat(" with compositional covariates");
+    }
+    cat("\n")
     print(x$obj$call);
     if(x$type == "bootstrapped" || x$type == "bootlmrob") {
-        cat("\nStandard errors and derived statistics are base on ", x$R, " bootstrap replications\n", sep = "");
+        cat("\nStandard errors and derived statistics are based on ", x$R, " bootstrap replications\n", sep = "");
     }
     cat("\nCoefficients:\n");
 

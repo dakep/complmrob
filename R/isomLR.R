@@ -58,8 +58,8 @@ isomLR <- function(x, comp = 1) {
 #' @return \code{isomLRinv}: a numeric matrix with \code{D} columns with the transformed values. The
 #' values in the matrix are not on the original scale, but the percentage shares are equal.
 #'
+#' @describeIn isomLR Inverse transformation
 #' @export
-#' @describeIn isomLR
 #' @examples
 #' isomLRinv(ilrZ1)
 isomLRinv <- function(z, perc = TRUE) {

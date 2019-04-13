@@ -53,7 +53,6 @@ confint.bccomplmrob <- function(object, parm, level = 0.95, type = c("bca", "per
     }
 }
 
-#'
 #' @importFrom boot boot.ci
 #' @import robustbase
 #' @describeIn confint for bootstrapped estimates of robust linear regression models
