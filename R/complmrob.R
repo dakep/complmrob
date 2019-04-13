@@ -20,7 +20,7 @@
 #'          \item{models}{the single regression models (one for each orthonormal basis)}
 #'          \item{npred}{the number of predictor variables}
 #'          \item{predictors}{the names of the predictor variables}
-#'          \item{coefind}{the index of the relevent coefficient in the single regression models}
+#'          \item{coefind}{the index of the relevant coefficient in the single regression models}
 #'          \item{call}{how the function was called}
 #'          \item{intercept}{if an intercept is included}
 #'      }
@@ -69,7 +69,8 @@ complmrob <- function(formula, data) {
         predictors = compPred,
         coefind = coefind,
         call = match.call(),
-        intercept = int
+        intercept = int,
+        formula = formula
     );
 
     class(ret) <- "complmrob";

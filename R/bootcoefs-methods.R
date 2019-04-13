@@ -5,7 +5,7 @@
 #'
 #' The default method is to use fast and robust bootstrap as described in the paper by M. Salibian-Barrera, et al.
 #' (see references). The other options are to bootstrap the residuals or to bootstrap cases (observations),
-#' but the sampling distribution of the estimates from these methods can be numerically instable and take
+#' but the sampling distribution of the estimates from these methods can be numerically unstable and take
 #' longer to compute.
 #'
 #' @param object the model to bootstrap the coefficients from
