@@ -253,10 +253,13 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
 
     p <- ggplot(replicatesDens, aes(x = x)) +
         geom_area(mapping = aes(y = y), fill = confStyle$color, alpha = confStyle$alpha) +
-        stat_density(data = replicatesLong, mapping = aes(ymax = ..density..), geom = "line",
-            kernel = kernel, adjust = adjust,
-            color = densityStyle$color, size = densityStyle$width, alpha = densityStyle$alpha,
-            linetype = densityStyle$linetype) +
+        suppressWarnings(stat_density(data = replicatesLong,
+                                      mapping = aes(ymax = ..density..), geom = "line",
+                                      kernel = kernel, adjust = adjust,
+                                      color = densityStyle$color,
+                                      size = densityStyle$width,
+                                      alpha = densityStyle$alpha,
+                                      linetype = densityStyle$linetype)) +
         geom_segment(data = trueCoefs, aes(x = x, xend = x, y = 0, yend = 1.02 * y), linetype = estLineStyle$linetype,
             size = estLineStyle$width, color = estLineStyle$color, alpha = estLineStyle$alpha) +
         scale_y_continuous(expand = c(0, 0)) +
@@ -276,69 +279,3 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
 
     return(p);
 }
-
-#' complmrob.wrapper <- function(formula, data, weights = NULL, complmrob.model, transform = FALSE) {
-#'     part <- names(complmrob.model$models)[as.integer(data$PANEL[1])]
-#'
-#'     x <- complmrob.model$models[[part]]
-#'     x$transform = transform;
-#'     x$part <- part;
-#'     class(x) <- "complmrob.part";
-#'     return(x)
-#' }
-#'
-#' #' Predict values for a \code{complmrob.part} object
-#' #'
-#' #' This function is used by ggplot2 to predict the values for a \code{complmrob} model and should
-#' #' usally not be needed by the user.
-#' #'
-#' #' The sole reason that this function is visible is because the \code{\link[ggplot2]{ggplot}}
-#' #' function \code{predictdf} is not exported and thus this function could not be used for
-#' #' \code{complmrob.part} objects if it was not exported.
-#' #'
-#' #' @param model the complmrob.part model the prediction should be done for
-#' #' @param xseq the sequence of x values to predict for
-#' #' @param se should the confidence interval be returned as well
-#' #' @param level the level of the confidence interval (if any)
-#' #' @import robustbase
-#' #' @export
-#' predictdf.complmrob.part <- function(model, xseq, se, level) {
-#'     getSeq <- function(x, length = 100) {
-#'         rep.int(mean(x), times = length)
-#'     };
-#'
-#'     partColumn <- which(colnames(model$x) == model$part);
-#'     origdata <- model$x[ , -partColumn, drop = FALSE];
-#'     if(attr(model$terms, "intercept") == 1) {
-#'         origdata <- origdata[ , -1, drop = FALSE];
-#'     }
-#'
-#'     predDataMatrix <- matrix(rep(colMeans(origdata), each = length(xseq)), nrow = length(xseq));
-#'
-#'     if(model$transform) {
-#'         ra <- range(model$x[ , partColumn, drop = TRUE]);
-#'         ra <- diff(ra) * c(-0.05, 0.05) + ra; # Expand limits by 5 percent
-#'         suppressWarnings(preddata <- data.frame(part = seq.int(from = ra[1], to = ra[2], length.out = length(xseq)),
-#'             predDataMatrix));
-#'     } else {
-#'         suppressWarnings(preddata <- data.frame(part = xseq, predDataMatrix));
-#'     }
-#'
-#'     colnames(preddata)[1] <- model$part;
-#'     colnames(preddata)[-1] <- colnames(origdata);
-#'     class(model) <- "lmrob";
-#'
-#'     pred <- predict(model, newdata = preddata, interval = ifelse(se, "confidence", "none"), level = level);
-#'     if(se == TRUE) {
-#'         colnames(pred) <- c("y", "ymin", "ymax");
-#'     } else {
-#'         pred <- data.frame(y = pred);
-#'     }
-#'
-#'     if(model$transform) {
-#'         Zinv <- isomLRinv(as.matrix(preddata));
-#'         return(data.frame(x = Zinv[ , 1], pred))
-#'     } else {
-#'         return(data.frame(x = xseq, pred))
-#'     }
-#' }
