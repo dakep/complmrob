@@ -7,7 +7,6 @@ This fixes the bad practice of relying on finding S3 methods on the search path.
 * win-builder (devel and release)
 * Rhub
   * Debian Linux, R-release, GCC
-  * Debian Linux, R-devel, GCC ASAN/UBSAN
   * Fedora Linux, R-devel, GCC
   * Fedora Linux, R-devel, clang, gfortran
   * Windows Server 2008 R2 SP1, R-oldrel, 32/64 bit
