@@ -1,3 +1,7 @@
+2019-09-14  David Kepplinger <david.kepplinger@gmail.com>
+
+    * The `bootcoefs` method now falls back to resample residuals if the given object is not an MM-estimate.
+
 2015-10-17  David Kepplinger <david.kepplinger@gmail.com>
 
     * Release version 0.6.1
