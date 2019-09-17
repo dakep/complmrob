@@ -172,7 +172,7 @@ bootcoefs.lmrob <- function(object, R = 999, method = c("frb", "residuals", "cas
     )
 
     bootres = NULL
-    if (method == 'frb' && object$control$method != 'SM') {
+    if (method == 'frb' && (!isTRUE(object$control$method == 'SM') || is.null(object$init.S))) {
         method <- 'residuals'
     }
 
