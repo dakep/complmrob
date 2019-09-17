@@ -15,7 +15,8 @@
 #' @param model The lmrob model
 #' @param inds the resampled indices.
 #' @param coefind the index of the coefficient to extract.
-#' @param control the control object as returned by \code{bootStatFastControl}.
+#' @param control either the control object as returned by \code{bootStatFastControl} (for `bootStatFast`) or the
+#'                control object used to fit the model(s) with `lmrob`.
 #' @param formula the formula to fit the model
 #' @param intercept if the model includes an intercept term.
 #' @param maxTries the maximum number of tries to increase the maxit control arguments for the S estimator.
