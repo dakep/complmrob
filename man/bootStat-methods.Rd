@@ -29,7 +29,8 @@ the response variable.}
 
 \item{maxTries}{the maximum number of tries to increase the maxit control arguments for the S estimator.}
 
-\item{control}{the control object as returned by \code{bootStatFastControl}.}
+\item{control}{either the control object as returned by \code{bootStatFastControl} (for `bootStatFast`) or the
+control object used to fit the model(s) with `lmrob`.}
 
 \item{origData}{the original data set.}
 
