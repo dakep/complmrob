@@ -15,7 +15,8 @@
 #' @param model The lmrob model
 #' @param inds the resampled indices.
 #' @param coefind the index of the coefficient to extract.
-#' @param control the control object as returned by \code{bootStatFastControl}.
+#' @param control either the control object as returned by \code{bootStatFastControl} (for `bootStatFast`) or the
+#'                control object used to fit the model(s) with `lmrob`.
 #' @param formula the formula to fit the model
 #' @param intercept if the model includes an intercept term.
 #' @param maxTries the maximum number of tries to increase the maxit control arguments for the S estimator.
@@ -27,40 +28,53 @@ NULL
 
 #' @rdname bootStat-methods
 #' @import robustbase
-bootStatResiduals <- function(residData, inds, coefind, intercept = TRUE, maxTries = 4L) {
-    formula <- fit + resid[inds] ~ .;
+bootStatResiduals <- function(residData, inds, coefind, intercept = TRUE, maxTries = 4L, control) {
+    formula <- complmrob_fit_ + complmrob_resid_[inds] ~ .
 
     if(intercept == FALSE) {
-        formula <- fit + resid[inds] ~ . - 1;
+        formula <- complmrob_fit_ + complmrob_resid_[inds] ~ . - 1
     }
 
-    suppressWarnings(m <- robustbase::lmrob(formula, data = residData));
+    if (!is.null(residData$`(weights)`)) {
+        weights <- residData$`(weights)`
+        residData$`(weights)` <- NULL
+        suppressWarnings(m <- robustbase::lmrob(formula, data = residData, control = control, weights = weights))
+    } else {
+        suppressWarnings(m <- robustbase::lmrob(formula, data = residData, control = control))
+    }
 
     # Ensure convergence!
-    itcount <- 0L;
+    itcount <- 0L
     while(!m$converged && itcount < maxTries) {
-        itcount <- itcount + 1L;
+        itcount <- itcount + 1L
         suppressWarnings(m <- update(m, maxit.scale = m$control$maxit.scale + 200, max.it = m$control$max.it + 50))
     }
     if(itcount == maxTries) {
-        return(NA_real_);
+        return(NA_real_)
     }
     return(coef(m)[coefind])
-};
+}
 
 #' @import robustbase
 #' @rdname bootStat-methods
-bootStatCases <- function(origData, inds, coefind, formula, maxTries = 4L) {
-    suppressWarnings(m <- robustbase::lmrob(formula, data = origData[inds, ]));
+bootStatCases <- function(origData, inds, coefind, formula, maxTries = 4L, control) {
+    if (!is.null(origData$`(weights)`)) {
+        weights <- origData$`(weights)`[inds]
+        origData$`(weights)` <- NULL
+        suppressWarnings(m <- robustbase::lmrob(formula, data = origData[inds, ], control = control, weights = weights))
+    } else {
+        suppressWarnings(m <- robustbase::lmrob(formula, data = origData[inds, ], control = control))
+
+    }
 
     # Ensure convergence!
-    itcount <- 0L;
+    itcount <- 0L
     while(!m$converged && itcount < maxTries) {
-        itcount <- itcount + 1L;
+        itcount <- itcount + 1L
         suppressWarnings(m <- update(m, maxit.scale = m$control$maxit.scale + 200, max.it = m$control$max.it + 50))
     }
     if(itcount == maxTries) {
-        return(NA_real_);
+        return(NA_real_)
     }
     return(coef(m)[coefind])
 }
@@ -68,56 +82,56 @@ bootStatCases <- function(origData, inds, coefind, formula, maxTries = 4L) {
 #' @import robustbase
 #' @rdname bootStat-methods
 bootStatFastControl <- function(model) {
-    X <- model.matrix(model);
-    n <- attr(X, "dim")[1];
-    p <- attr(X, "dim")[2];
-    vfactorinv <- (n - p) * model$init.S$control$bb;
+    X <- model.matrix(model)
+    n <- attr(X, "dim")[1]
+    p <- attr(X, "dim")[2]
+    vfactorinv <- (n - p) * model$init.S$control$bb
 
-    scaledRes <- model$residuals / model$scale;
-    scaledResS <- model$init.S$residuals / model$scale;
+    scaledRes <- model$residuals / model$scale
+    scaledResS <- model$init.S$residuals / model$scale
 
-    w <- model$rweights / model$scale;
+    w <- model$rweights / model$scale
     v <- (model$scale / vfactorinv) *
-        robustbase::Mchi(scaledResS, deriv = 0, cc = model$init.S$control$tuning.chi, psi = model$init.S$control$psi);
+        robustbase::Mchi(scaledResS, deriv = 0, cc = model$init.S$control$tuning.chi, psi = model$init.S$control$psi)
 
-    wp2 <- robustbase::Mpsi(scaledRes, deriv = 1, cc = model$control$tuning.psi, psi = model$control$psi);
+    wp2 <- robustbase::Mpsi(scaledRes, deriv = 1, cc = model$control$tuning.psi, psi = model$control$psi)
 
-    sf <- crossprod(X, diag(wp2)) %*% X;
-    sfinv <- NULL;
+    sf <- crossprod(X, diag(wp2)) %*% X
+    sfinv <- NULL
 
     tryCatch({
-        sfinv <- solve(sf);
+        sfinv <- solve(sf)
     }, error = function(e) {
-        warning("The data is (almost) singular, results will not be reliable.");
-        svddecomp <- svd(sf);
-        sfinv <<- tcrossprod(svddecomp$v %*% diag(1/svddecomp$d), svddecomp$u);
-    });
+        warning("The data is (almost) singular, results will not be reliable.")
+        svddecomp <- svd(sf)
+        sfinv <<- tcrossprod(svddecomp$v %*% diag(1/svddecomp$d), svddecomp$u)
+    })
     M <- model$scale * sfinv %*% crossprod(X, diag(w)) %*% X
 
-    chideriv <- robustbase::Mchi(scaledResS, deriv = 1, cc = model$init.S$control$tuning.chi, psi = model$init.S$control$psi);
+    chideriv <- robustbase::Mchi(scaledResS, deriv = 1, cc = model$init.S$control$tuning.chi, psi = model$init.S$control$psi)
 
-    a <- (chideriv %*% scaledResS)[1, 1, drop = TRUE];
+    a <- (chideriv %*% scaledResS)[1, 1, drop = TRUE]
 
     # the correction vector d is not divided by the scale in the paper, but in the
     # reference code from Matias Salibian-Barrera
-    d <- (sfinv %*% crossprod(X, wp2 * model$residuals)) * vfactorinv / (a * model$scale);
+    d <- (sfinv %*% crossprod(X, wp2 * model$residuals)) * vfactorinv / (a * model$scale)
 
     ## The .lm.fit method is only available in R 3.1.0 upwards,
     ## so write a wrapper that can be used in the bootStatFast method
     ## that doesn't do any checks
 
-    lmwfit <- function(x, y, weights) {};
+    lmwfit <- function(x, y, weights) {}
 
     if(getRversion() < numeric_version("3.1.0")) {
         lmwfit <- function(x, y, weights) {
-            return(lm.wfit(x, y, w = weights)$coefficients);
-        };
+            return(lm.wfit(x, y, w = weights)$coefficients)
+        }
     } else {
         # the fast version w/o any checks is available
-        w <- sqrt(w);
+        w <- sqrt(w)
         lmwfit <- function(x, y, weights) {
-            return(.lm.fit(x * weights, y * weights)$coefficients);
-        };
+            return(.lm.fit(x * weights, y * weights)$coefficients)
+        }
     }
 
     ret <- list(
@@ -132,25 +146,25 @@ bootStatFastControl <- function(model) {
         lmwfit = lmwfit
     )
 
-    class(ret) <- "bootStatFastControl";
-    return(ret);
+    class(ret) <- "bootStatFastControl"
+    return(ret)
 }
 
 #' @import robustbase
 #' @rdname bootStat-methods
 bootStatFast <- function(origData, inds, control, coefind) {
-    bsResidS <- control$residualsS[inds];
+    bsResidS <- control$residualsS[inds]
 
-    mf <- model.frame(control$terms, origData[inds, , drop = FALSE]);
-    X <- model.matrix(control$terms, mf);
-    y <- model.response(mf, "numeric");
+    mf <- model.frame(control$terms, origData[inds, , drop = FALSE])
+    X <- model.matrix(control$terms, mf)
+    y <- model.response(mf, "numeric")
 
-    wts <- control$wts[inds];
+    wts <- control$wts[inds]
 
-    bsCoef <- control$lmwfit(X, y, wts);
-    bsScale <- sum(control$v[inds]);
+    bsCoef <- control$lmwfit(X, y, wts)
+    bsScale <- sum(control$v[inds])
 
-    bootCoefs <- control$coefficients + control$M %*% (bsCoef - control$coefficients) + control$d * (bsScale - control$scale);
+    bootCoefs <- control$coefficients + control$M %*% (bsCoef - control$coefficients) + control$d * (bsScale - control$scale)
 
     return(bootCoefs[coefind])
 }

@@ -9,9 +9,9 @@
 \title{Bootstrap statistics functions}
 \usage{
 bootStatResiduals(residData, inds, coefind, intercept = TRUE,
-  maxTries = 4L)
+  maxTries = 4L, control)
 
-bootStatCases(origData, inds, coefind, formula, maxTries = 4L)
+bootStatCases(origData, inds, coefind, formula, maxTries = 4L, control)
 
 bootStatFastControl(model)
 
@@ -29,13 +29,14 @@ the response variable.}
 
 \item{maxTries}{the maximum number of tries to increase the maxit control arguments for the S estimator.}
 
+\item{control}{either the control object as returned by \code{bootStatFastControl} (for `bootStatFast`) or the
+control object used to fit the model(s) with `lmrob`.}
+
 \item{origData}{the original data set.}
 
 \item{formula}{the formula to fit the model}
 
 \item{model}{The lmrob model}
-
-\item{control}{the control object as returned by \code{bootStatFastControl}.}
 }
 \description{
 Functions to calculate the coefficient(s) of the robust linear regression model

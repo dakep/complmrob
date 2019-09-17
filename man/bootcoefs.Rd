@@ -38,10 +38,13 @@ This function provides an easy interface and useful output to bootstrapping the 
 coefficients of robust linear regression models
 }
 \details{
-The default method is to use fast and robust bootstrap as described in the paper by M. Salibian-Barrera, et al.
-(see references). The other options are to bootstrap the residuals or to bootstrap cases (observations),
-but the sampling distribution of the estimates from these methods can be numerically unstable and take
-longer to compute.
+If `object` is created by `complmrob` the default method is to use fast and robust bootstrap (FRB) as
+described in the paper by M. Salibian-Barrera, et al (2008). The same default is used if `object` is an MM-estimate
+created by `lmrob(..., method = 'SM')`.
+The other options are to bootstrap the residuals or to bootstrap cases (observations), but the sampling
+distribution of the estimates from these methods can be numerically unstable and take longer to compute.
+If the `object` is a robust estimate created by `lmrob`, but not an MM-estimate, the default is to bootstrap
+the residuals.
 }
 \section{Methods (by class)}{
 \itemize{
