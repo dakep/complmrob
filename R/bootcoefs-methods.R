@@ -3,10 +3,13 @@
 #' This function provides an easy interface and useful output to bootstrapping the regression
 #' coefficients of robust linear regression models
 #'
-#' The default method is to use fast and robust bootstrap as described in the paper by M. Salibian-Barrera, et al.
-#' (see references). The other options are to bootstrap the residuals or to bootstrap cases (observations),
-#' but the sampling distribution of the estimates from these methods can be numerically unstable and take
-#' longer to compute.
+#' If `object` is created by `complmrob` the default method is to use fast and robust bootstrap (FRB) as
+#' described in the paper by M. Salibian-Barrera, et al (2008). The same default is used if `object` is an MM-estimate
+#' created by `lmrob(..., method = 'SM')`.
+#' The other options are to bootstrap the residuals or to bootstrap cases (observations), but the sampling
+#' distribution of the estimates from these methods can be numerically unstable and take longer to compute.
+#' If the `object` is a robust estimate created by `lmrob`, but not an MM-estimate, the default is to bootstrap
+#' the residuals.
 #'
 #' @param object the model to bootstrap the coefficients from
 #' @param R the number of bootstrap replicates.
@@ -27,7 +30,7 @@
 #' summary(bc)
 #' plot(bc) # for the model diagnostic plots
 bootcoefs <- function(object, R = 999, method = c("frb", "residuals", "cases"), ncpus = NULL, cl = NULL, ...) {
-    UseMethod("bootcoefs", object);
+    UseMethod("bootcoefs", object)
 }
 
 #' @describeIn bootcoefs For robust linear regression models with compositional data
@@ -37,9 +40,9 @@ bootcoefs.complmrob <- function(object, R = 999, method = c("frb", "residuals", 
     #
     # Initialize auxiliary variables
     #
-    method <- match.arg(method);
+    method <- match.arg(method)
 
-    clSetup <- setupCluster(ncpus, cl);
+    clSetup <- setupCluster(ncpus, cl)
 
     bootParams <- list(
         R = quote(R),
@@ -49,100 +52,104 @@ bootcoefs.complmrob <- function(object, R = 999, method = c("frb", "residuals", 
         cl = quote(clSetup$cl)
     )
 
-    bootres <- list();
+    bootres <- list()
 
     tryCatch({
         if(method == "frb") {
             bootres <- lapply(object$models, function(m, bootParams) {
-                bootParams$data <- quote(model.frame(m));
-                bootParams$control <- quote(bootStatFastControl(m));
-                bootParams$statistic <- quote(bootStatFast);
+                bootParams$data <- quote(model.frame(m))
+                bootParams$control <- quote(bootStatFastControl(m))
+                bootParams$statistic <- quote(bootStatFast)
 
                 bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
-                return(eval(bc));
-            }, bootParams);
+                return(eval(bc))
+            }, bootParams)
 
             if(object$intercept == TRUE) {
-                m <- object$models[[1]];
-                bootParams$coefind <- 1;
-                bootParams$data <- quote(model.frame(m));
-                bootParams$control <- quote(bootStatFastControl(m));
-                bootParams$statistic <- quote(bootStatFast);
+                m <- object$models[[1]]
+                bootParams$coefind <- 1
+                bootParams$data <- quote(model.frame(m))
+                bootParams$control <- quote(bootStatFastControl(m))
+                bootParams$statistic <- quote(bootStatFast)
 
                 bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
-                bootres[["(Intercept)"]] <- eval(bc);
+                bootres[["(Intercept)"]] <- eval(bc)
             }
         } else if(method == "residuals") {
             bootres <- lapply(object$models, function(m, bootParams) {
-                respInd <- attr(m$terms, "response");
+                respInd <- attr(m$terms, "response")
 
                 bootParams$data <- quote(data.frame(model.frame(m)[ , -respInd, drop = FALSE],
-                    fit = fitted(m), resid = residuals(m)));
-                bootParams$weights = quote(m$rweights);
-                bootParams$statistic <- quote(bootStatResiduals);
-                bootParams$intercept <- quote(object$intercept);
+                                                    complmrob_fit_ = fitted(m), complmrob_resid_ = residuals(m)))
+                bootParams$weights = quote(m$rweights)
+                bootParams$statistic <- quote(bootStatResiduals)
+                bootParams$intercept <- quote(object$intercept)
+                bootParams$control <- quote(m$control)
 
                 bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
-                return(eval(bc));
-            }, bootParams);
+                return(eval(bc))
+            }, bootParams)
 
             if(object$intercept == TRUE) {
-                m <- object$models[[1]];
-                respInd <- attr(m$terms, "response");
-                bootParams$coefind <- 1;
+                m <- object$models[[1]]
+                respInd <- attr(m$terms, "response")
+                bootParams$coefind <- 1
                 bootParams$data <- quote(data.frame(model.frame(m)[ , -respInd, drop = FALSE],
-                    fit = fitted(m), resid = residuals(m)));
-                bootParams$weights = quote(m$rweights);
-                bootParams$statistic <- quote(bootStatResiduals);
-                bootParams$intercept <- quote(object$intercept);
+                                                    complmrob_fit_ = fitted(m), complmrob_resid_ = residuals(m)))
+                bootParams$weights = quote(m$rweights)
+                bootParams$statistic <- quote(bootStatResiduals)
+                bootParams$intercept <- quote(object$intercept)
+                bootParams$control <- quote(m$control)
 
                 bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
-                bootres[["(Intercept)"]] <- eval(bc);
+                bootres[["(Intercept)"]] <- eval(bc)
             }
         } else {
             bootres <- lapply(object$models, function(m, bootParams) {
-                bootParams$data <- quote(model.frame(m));
-                bootParams$formula <- quote(formula(m$terms));
-                bootParams$weights = quote(m$rweights);
-                bootParams$statistic <- quote(bootStatCases);
+                bootParams$data <- quote(model.frame(m))
+                bootParams$formula <- quote(formula(m$terms))
+                bootParams$weights = quote(m$rweights)
+                bootParams$statistic <- quote(bootStatCases)
+                bootParams$control <- quote(m$control)
 
                 bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
-                return(eval(bc));
-            }, bootParams);
+                return(eval(bc))
+            }, bootParams)
 
             if(object$intercept == TRUE) {
-                m <- object$models[[1]];
-                bootParams$coefind <- 1;
-                bootParams$data <- quote(model.frame(m));
-                bootParams$formula <- quote(formula(m$terms));
-                bootParams$weights = quote(m$rweights);
-                bootParams$statistic <- quote(bootStatCases);
+                m <- object$models[[1]]
+                bootParams$coefind <- 1
+                bootParams$data <- quote(model.frame(m))
+                bootParams$formula <- quote(formula(m$terms))
+                bootParams$weights = quote(m$rweights)
+                bootParams$statistic <- quote(bootStatCases)
+                bootParams$control <- quote(m$control)
 
                 bc <- as.call(c(list(expression(boot::boot)[[1]]), bootParams))
-                bootres[["(Intercept)"]] <- eval(bc);
+                bootres[["(Intercept)"]] <- eval(bc)
             }
         }
 
         if(object$intercept == TRUE) {
             #reorder bootres so that the intercept is first
-            bootres <- bootres[c(length(bootres), seq_len(length(bootres) - 1))];
+            bootres <- bootres[c(length(bootres), seq_len(length(bootres) - 1))]
         }
     }, error = function(e) {
-        print(e);
+        stop("Can not bootstrap estimates:\n", e)
     }, finally = {
         if(clSetup$needToShutdownCluster == TRUE) {
-            parallel::stopCluster(clSetup$cl);
+            parallel::stopCluster(clSetup$cl)
         }
-    });
+    })
 
     ret <- list(
         bootres = bootres,
         model = object,
         R = R
-    );
+    )
 
-    class(ret) <- c("bootcoefs", "bccomplmrob");
-    return(ret);
+    class(ret) <- c("bootcoefs", "bccomplmrob")
+    return(ret)
 }
 
 #' @describeIn bootcoefs For standard robust linear regression models
@@ -152,9 +159,9 @@ bootcoefs.lmrob <- function(object, R = 999, method = c("frb", "residuals", "cas
     #
     # Initialize auxiliary variables
     #
-    method <- match.arg(method);
+    method <- match.arg(method)
 
-    clSetup <- setupCluster(ncpus, cl);
+    clSetup <- setupCluster(ncpus, cl)
 
     bootParams <- list(
         R = quote(R),
@@ -164,41 +171,48 @@ bootcoefs.lmrob <- function(object, R = 999, method = c("frb", "residuals", "cas
         cl = quote(clSetup$cl)
     )
 
-    bootres = NULL;
+    bootres = NULL
+    if (method == 'frb' && (!isTRUE(object$control$method == 'SM') || is.null(object$init.S))) {
+        method <- 'residuals'
+    }
 
     tryCatch({
         if(method == "frb") {
             bootres <- boot::boot(data = model.frame(object), statistic = bootStatFast,
-                R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
-                coefind = seq_along(coef(object)), control = bootStatFastControl(object));
+                                  R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
+                                  coefind = seq_along(coef(object)), control = bootStatFastControl(object))
         } else if(method == "residuals") {
-            respInd <- attr(object$terms, "response");
-            tmpData <- data.frame(model.frame(object)[ , -respInd, drop = FALSE], fit = fitted(object), resid = residuals(object));
+            respInd <- attr(object$terms, "response")
+            tmpData <- data.frame(model.frame(object)[ , -respInd, drop = FALSE],
+                                  complmrob_fit_ = fitted(object),
+                                  complmrob_resid_ = residuals(object))
 
             bootres <- boot::boot(data = tmpData, statistic = bootStatResiduals, weights = object$rweights,
-                R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
-                intercept = (attr(object$terms, "intercept") == 1), coefind = seq_along(coef(object)));
+                                  R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
+                                  intercept = (attr(object$terms, "intercept") == 1), coefind = seq_along(coef(object)),
+                                  control = object$control)
         } else {
             bootres <- boot::boot(data = model.frame(object), statistic = bootStatCases, weights = object$rweights,
-                R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
-                coefind = seq_along(coef(object)), formula = formula(object$terms));
+                                  R = R, parallel = clSetup$parallel, ncpus = length(clSetup$cl), cl = clSetup$cl,
+                                  coefind = seq_along(coef(object)), formula = formula(object$terms),
+                                  control = object$control)
         }
     }, error = function(e) {
-        print(e);
+        stop("Can not bootstrap estimates:\n", e)
     }, finally = {
         if(clSetup$needToShutdownCluster == TRUE) {
-            parallel::stopCluster(clSetup$cl);
+            parallel::stopCluster(clSetup$cl)
         }
-    });
+    })
 
     ret <- list(
         bootres = bootres,
         model = object,
         R = R
-    );
+    )
 
-    class(ret) <- c("bootcoefs", "bclmrob");
-    return(ret);
+    class(ret) <- c("bootcoefs", "bclmrob")
+    return(ret)
 }
 
 #' @import parallel
@@ -206,31 +220,31 @@ setupCluster <- function(ncpus, cl) {
     ##
     ## Setup clusters (if any)
     ##
-    needToShutdownCluster <- FALSE;
-    parallel <- "no";
+    needToShutdownCluster <- FALSE
+    parallel <- "no"
     if(!is.null(ncpus) && is.null(cl)) {
         if (.Platform$OS.type == "unix") {
-            cl <- parallel::makeForkCluster(nnodes = ncpus);
+            cl <- parallel::makeForkCluster(nnodes = ncpus)
         } else {
-            cl <- parallel::makePSOCKcluster(names = ncpus);
+            cl <- parallel::makePSOCKcluster(names = ncpus)
         }
-        needToShutdownCluster <- TRUE;
+        needToShutdownCluster <- TRUE
     }
 
     if(!is.null(cl)) {
-        parallel <- "snow";
+        parallel <- "snow"
         tryCatch({
             parallel::clusterEvalQ(cl, {
-                loadNamespace("robustbase");
-            });
-            parallel::clusterExport(cl, varlist = c("isomLR"));
+                loadNamespace("robustbase")
+            })
+            parallel::clusterExport(cl, varlist = c("isomLR"))
         }, error = function(e) {
             if(needToShutdownCluster == TRUE) {
-                parallel::stopCluster(cl);
-                parallel <<- "no";
-                needToShutdownCluster <<- FALSE;
+                parallel::stopCluster(cl)
+                parallel <<- "no"
+                needToShutdownCluster <<- FALSE
             }
-            cl <<- NULL;
+            cl <<- NULL
         }, finally = function(...) {})
     }
 
@@ -238,5 +252,5 @@ setupCluster <- function(ncpus, cl) {
         needToShutdownCluster = needToShutdownCluster,
         parallel = parallel,
         cl = cl
-    ));
+    ))
 }
