@@ -2,7 +2,7 @@ Package: complmrob
 Type: Package
 Title: Robust Linear Regression with Compositional Data as Covariates
 Version: 0.7.0
-Date: 2019-04-12
+Date: 2019-09-17
 URL: https://github.com/dakep/complmrob
 Author: David Kepplinger <david.kepplinger@gmail.com>
 Maintainer: David Kepplinger <david.kepplinger@gmail.com>
