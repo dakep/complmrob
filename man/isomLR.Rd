@@ -34,9 +34,9 @@ and forth by transforming the values according to
 }
 \section{Functions}{
 \itemize{
-\item \code{isomLRinv}: Inverse transformation
-}}
+\item \code{isomLRinv()}: Inverse transformation
 
+}}
 \examples{
 X <- as.matrix(USArrests[ , -3])
 # Get the ilr with relative information of the 1st column to the other cols

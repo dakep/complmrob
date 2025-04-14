@@ -5,11 +5,21 @@
 \alias{confint.bclmrob}
 \title{Calculate confidence intervals}
 \usage{
-\method{confint}{bccomplmrob}(object, parm, level = 0.95,
-  type = c("bca", "perc", "norm", "basic", "stud"), ...)
+\method{confint}{bccomplmrob}(
+  object,
+  parm,
+  level = 0.95,
+  type = c("bca", "perc", "norm", "basic", "stud"),
+  ...
+)
 
-\method{confint}{bclmrob}(object, parm, level = 0.95, type = c("bca",
-  "perc", "norm", "basic", "stud"), ...)
+\method{confint}{bclmrob}(
+  object,
+  parm,
+  level = 0.95,
+  type = c("bca", "perc", "norm", "basic", "stud"),
+  ...
+)
 }
 \arguments{
 \item{object}{an object returned from \code{\link{bootcoefs}}.}
@@ -19,7 +29,7 @@ of numbers or a vector of names. If missing, all parameters are considered.}
 
 \item{level}{the confidence level required.}
 
-\item{type}{the type of interval required (see the type argument of \code{\link{boot.ci}}).}
+\item{type}{the type of interval required (see the type argument of \code{\link[boot:boot.ci]{boot::boot.ci()}}).}
 
 \item{...}{currently ignored.}
 }
@@ -29,11 +39,11 @@ compositional data
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{bccomplmrob}: for bootstrapped estimates of robust linear regression models for compositional data
+\item \code{confint(bccomplmrob)}: for bootstrapped estimates of robust linear regression models for compositional data
 
-\item \code{bclmrob}: for bootstrapped estimates of robust linear regression models
+\item \code{confint(bclmrob)}: for bootstrapped estimates of robust linear regression models
+
 }}
-
 \examples{
 data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
 mUSArr <- complmrob(lifeExp ~ ., data = data)

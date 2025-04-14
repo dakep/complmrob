@@ -219,7 +219,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
     }
 
     replicates <- list();
-    if(class(x$bootres) == "boot") {
+    if(inherits(x$bootres, "boot")) {
         tsub <- x$bootres$t[ , which, drop = FALSE];
         nc <- ncol(tsub);
         replicates <- split(tsub, rep.int(seq_len(nc), rep.int(nrow(tsub), nc)));
@@ -264,7 +264,7 @@ plot.bootcoefs <- function(x, y = NULL, conf.level = 0.95, conf.type = "perc", k
             size = estLineStyle$width, color = estLineStyle$color, alpha = estLineStyle$alpha) +
         scale_y_continuous(expand = c(0, 0)) +
         ggtitle(sprintf("Distribution of %d bootstrap estimates with %s confidence interval", x$R,
-            format.perc(conf.level, 2))) +
+            format_perc(conf.level, 2))) +
         xlab(NULL) +
         ylab(NULL) +
         theme +

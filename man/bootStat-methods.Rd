@@ -8,8 +8,14 @@
 \alias{bootStatFast}
 \title{Bootstrap statistics functions}
 \usage{
-bootStatResiduals(residData, inds, coefind, intercept = TRUE,
-  maxTries = 4L, control)
+bootStatResiduals(
+  residData,
+  inds,
+  coefind,
+  intercept = TRUE,
+  maxTries = 4L,
+  control
+)
 
 bootStatCases(origData, inds, coefind, formula, maxTries = 4L, control)
 

@@ -7,9 +7,10 @@
 #' @param parm a specification of which parameters are to be given confidence intervals, either a vector
 #'      of numbers or a vector of names. If missing, all parameters are considered.
 #' @param level the confidence level required.
-#' @param type the type of interval required (see the type argument of \code{\link{boot.ci}}).
+#' @param type the type of interval required (see the type argument of [boot::boot.ci()]).
 #' @param ... currently ignored.
 #'
+#' @md
 #' @importFrom boot boot.ci
 #' @import robustbase
 #' @export
@@ -44,7 +45,7 @@ confint.bccomplmrob <- function(object, parm, level = 0.95, type = c("bca", "per
     });
 
     ci <- do.call(rbind, ci);
-    colnames(ci) <- format.perc((1 + c(-1, 1) * level) / 2, 3);
+    colnames(ci) <- format_perc((1 + c(-1, 1) * level) / 2, 3);
 
     if(missing(parm)) {
         return(ci);
@@ -74,15 +75,15 @@ confint.bclmrob <- function(object, parm, level = 0.95, type = c("bca", "perc", 
     });
 
     ci <- do.call(rbind, ci);
-    colnames(ci) <- format.perc((1 + c(-1, 1) * level) / 2, 3);
+    colnames(ci) <- format_perc((1 + c(-1, 1) * level) / 2, 3);
 
     return(ci);
 }
 
-#' Simple function (just copied from the stats package) to format percentages
-#'
-#' @param probs the percentages
-#' @param digits the number of digits
-format.perc <- function (probs, digits) {
+# Simple function (just copied from the stats package) to format percentages
+#
+# @param probs the percentages
+# @param digits the number of digits
+format_perc <- function (probs, digits) {
     paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), "%");
 }

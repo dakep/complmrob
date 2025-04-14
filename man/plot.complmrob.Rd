@@ -4,12 +4,20 @@
 \alias{plot.complmrob}
 \title{Diagnostic plots for the robust regression model with compositional covariates}
 \usage{
-\method{plot}{complmrob}(x, y = NULL, type = c("response", "model"),
-  se = TRUE, conf.level = 0.95, scale = c("ilr", "percent"),
-  theme = theme_bw(), pointStyle = list(color = "black", size = rel(1),
-  alpha = 1, shape = 19), lineStyle = list(color = "grey20", width =
-  rel(1), linetype = "solid"), seBandStyle = list(color = "gray80", alpha
-  = 0.5), stack = c("horizontal", "vertical"), ...)
+\method{plot}{complmrob}(
+  x,
+  y = NULL,
+  type = c("response", "model"),
+  se = TRUE,
+  conf.level = 0.95,
+  scale = c("ilr", "percent"),
+  theme = theme_bw(),
+  pointStyle = list(color = "black", size = rel(1), alpha = 1, shape = 19),
+  lineStyle = list(color = "grey20", width = rel(1), linetype = "solid"),
+  seBandStyle = list(color = "gray80", alpha = 0.5),
+  stack = c("horizontal", "vertical"),
+  ...
+)
 }
 \arguments{
 \item{x}{the object returned by \code{\link{complmrob}}.}

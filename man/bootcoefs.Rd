@@ -6,14 +6,32 @@
 \alias{bootcoefs.lmrob}
 \title{Bootstrap the regression coefficients for a robust linear regression model}
 \usage{
-bootcoefs(object, R = 999, method = c("frb", "residuals", "cases"),
-  ncpus = NULL, cl = NULL, ...)
+bootcoefs(
+  object,
+  R = 999,
+  method = c("frb", "residuals", "cases"),
+  ncpus = NULL,
+  cl = NULL,
+  ...
+)
 
-\method{bootcoefs}{complmrob}(object, R = 999, method = c("frb",
-  "residuals", "cases"), ncpus = NULL, cl = NULL, ...)
+\method{bootcoefs}{complmrob}(
+  object,
+  R = 999,
+  method = c("frb", "residuals", "cases"),
+  ncpus = NULL,
+  cl = NULL,
+  ...
+)
 
-\method{bootcoefs}{lmrob}(object, R = 999, method = c("frb",
-  "residuals", "cases"), ncpus = NULL, cl = NULL, ...)
+\method{bootcoefs}{lmrob}(
+  object,
+  R = 999,
+  method = c("frb", "residuals", "cases"),
+  ncpus = NULL,
+  cl = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{the model to bootstrap the coefficients from}
@@ -48,11 +66,11 @@ the residuals.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{complmrob}: For robust linear regression models with compositional data
+\item \code{bootcoefs(complmrob)}: For robust linear regression models with compositional data
 
-\item \code{lmrob}: For standard robust linear regression models
+\item \code{bootcoefs(lmrob)}: For standard robust linear regression models
+
 }}
-
 \examples{
 data <- data.frame(lifeExp = state.x77[, "Life Exp"], USArrests[ , -3])
 mUSArr <- complmrob(lifeExp ~ ., data = data)

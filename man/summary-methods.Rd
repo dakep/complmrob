@@ -9,11 +9,9 @@
 \usage{
 \method{summary}{complmrob}(object, conf.level = 0.95, ...)
 
-\method{summary}{bccomplmrob}(object, conf.level = 0.95,
-  conf.type = "perc", ...)
+\method{summary}{bccomplmrob}(object, conf.level = 0.95, conf.type = "perc", ...)
 
-\method{summary}{bclmrob}(object, conf.level = 0.95,
-  conf.type = "perc", ...)
+\method{summary}{bclmrob}(object, conf.level = 0.95, conf.type = "perc", ...)
 }
 \arguments{
 \item{object}{the object for which the summary information should be returned.}

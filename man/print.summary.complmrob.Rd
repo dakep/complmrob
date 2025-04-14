@@ -4,8 +4,12 @@
 \alias{print.summary.complmrob}
 \title{Print the summary information}
 \usage{
-\method{print}{summary.complmrob}(x, digits = max(3, getOption("digits")
-  - 3), signif.stars = getOption("show.signif.stars"), ...)
+\method{print}{summary.complmrob}(
+  x,
+  digits = max(3, getOption("digits") - 3),
+  signif.stars = getOption("show.signif.stars"),
+  ...
+)
 }
 \arguments{
 \item{x}{the summary object.}

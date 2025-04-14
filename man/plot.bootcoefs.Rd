@@ -4,12 +4,20 @@
 \alias{plot.bootcoefs}
 \title{Plot the distribution of the bootstrap estimates}
 \usage{
-\method{plot}{bootcoefs}(x, y = NULL, conf.level = 0.95,
-  conf.type = "perc", kernel = "gaussian", adjust = 1,
-  which = "all", theme = theme_bw(), confStyle = list(color =
-  "#56B4E9", alpha = 0.4), estLineStyle = list(color = "black", width =
-  rel(1), alpha = 1, linetype = "dashed"), densityStyle = list(color =
-  "black", width = rel(0.5), alpha = 1, linetype = "solid"), ...)
+\method{plot}{bootcoefs}(
+  x,
+  y = NULL,
+  conf.level = 0.95,
+  conf.type = "perc",
+  kernel = "gaussian",
+  adjust = 1,
+  which = "all",
+  theme = theme_bw(),
+  confStyle = list(color = "#56B4E9", alpha = 0.4),
+  estLineStyle = list(color = "black", width = rel(1), alpha = 1, linetype = "dashed"),
+  densityStyle = list(color = "black", width = rel(0.5), alpha = 1, linetype = "solid"),
+  ...
+)
 }
 \arguments{
 \item{x}{the object returned by a call to the \code{\link{bootcoefs}} function.}
